@@ -1,0 +1,4 @@
+can_id,message_count,avg_interval_ms,unique_payloads,payload_entropy
+0x100,193,500.449,23,4.5211
+0x101,193,500.448,25,4.6414
+0x102,193,500.448,16,3.9997
