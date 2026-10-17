@@ -1,0 +1,5 @@
+traffic_type,can_id,message_count,messages_per_second,detection_status
+Normal,0x123,250,25,Normal
+Normal,0x456,180,18,Normal
+Simulated High-Rate,0x123,1200,120,Suspicious
+Simulated High-Rate,0x456,950,95,Suspicious
