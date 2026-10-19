@@ -1,0 +1,10 @@
+Test: normal
+Message count: 500
+Messages/second: 50.0
+Observation: NORMAL-RATE PATTERN
+
+Test: simulated_high_rate
+Message count: 5000
+Messages/second: 500.0
+Observation: HIGH-RATE PATTERN
+
