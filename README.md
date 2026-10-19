@@ -1,53 +1,26 @@
-## Week 1 Progress Report
+## Day 5 - Dashboard Progress
 
-### Project Overview
-CAN-Sentinel is an automotive cybersecurity project designed
-to visualize CAN traffic and support the identification of
-potentially suspicious communication patterns.
-
-### Completed Work
-
-#### Dashboard Development
-- Developed a graphical dashboard using Python and PyQt5.
-- Implemented a dark-themed user interface.
+### Completed Features
+- Reviewed and improved the existing PyQt5 dashboard.
 - Added summary cards for total messages, unique CAN IDs,
-  normal records, and suspicious records.
-- Created a traffic table to display CAN traffic information.
+  normal rows, and suspicious rows.
+- Displayed normal and simulated high-rate traffic.
+- Added message count and messages-per-second statistics.
+- Added a clearly labelled sample detection status column.
+- Implemented CSV loading with input validation and error messages.
+- Added a sample-data refresh option.
+- Added a disclaimer explaining that sample statuses are not
+  actual machine-learning predictions.
 
-#### Traffic Visualization
-- Added Traffic Type, CAN ID, Message Count,
-  Messages/sec, and Detection Status columns.
-- Prepared the dashboard to display normal and simulated
-  high-rate traffic.
-- Added color-coded detection status indicators.
+### Pending Integration
+- Validate CSV loading with valid and invalid files.
+- Integrate actual traffic comparison results.
+- Connect actual ML evaluation or prediction outputs.
+- Verify detection statuses against actual model results.
+- Complete final integration testing.
 
-#### CSV Loading
-- Added functionality to select and load CSV files.
-- Implemented validation for required CSV columns.
-- Added error messages for invalid CSV files.
-- Updated dashboard statistics using loaded records.
-
-#### Dashboard Refresh
-- Added a refresh button for demonstration data.
-- Implemented summary updates and a last-updated timestamp.
-
-### Current Status
-The dashboard uses sample data for demonstration and supports
-loading traffic records from CSV files.
-
-Sample traffic values and detection statuses are illustrative.
-They are not verified live CAN traffic or actual ML predictions.
-
-### Pending Tasks
-- Complete CSV loading tests using valid and invalid files.
-- Capture a screenshot of the CSV-loaded dashboard.
-- Integrate actual traffic comparison results when available.
-- Display ML evaluation results when available.
-- Verify dashboard output against actual project results.
-- Commit and push the completed work to the development branch.
-
-### Technologies Used
-- Python
-- PyQt5
-- CSV
-- Git and GitHub
+### Data Disclaimer
+The dashboard currently uses demonstration data.
+Message counts, message rates, and detection statuses are
+illustrative and do not represent verified live CAN traffic
+or actual machine-learning predictions.
