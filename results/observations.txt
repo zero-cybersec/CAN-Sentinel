@@ -1,10 +1,23 @@
+CAN-Sentinel — Verified Synthetic Traffic Simulation Results
+
 Test: normal
+Duration: 10 seconds
 Message count: 500
 Messages/second: 50.0
+Unique CAN IDs: 4
 Observation: NORMAL-RATE PATTERN
 
 Test: simulated_high_rate
+Duration: 10 seconds
 Message count: 5000
 Messages/second: 500.0
+Unique CAN IDs: 4
 Observation: HIGH-RATE PATTERN
 
+Summary:
+- Normal traffic dataset: results/normal_traffic.csv
+- High-rate traffic dataset: results/high_rate_traffic.csv
+- Summary report: results/summary.csv
+- Simulation observations: results/observations.txt
+
+Note: These are synthetic CAN traffic simulation results, not measurements from a real vehicle.
