@@ -525,6 +525,63 @@ The dashboard specification can be prepared before the other modules are complet
 - Missing-column verification process documented.
 - Integration steps for displaying verified model results documented.
 - Validation and testing requirements documented.
+### Day 9 — CSV Compatibility Findings
+
+**Date:** 22 October 2026
+
+#### 1. Available Sample CSV
+
+The currently available CSV file is `sample_traffic.csv`. It contains the following columns:
+
+- `traffic_type`
+- `can_id`
+- `message_count`
+- `messages_per_second`
+- `detection_status`
+
+The sample contains Normal and Simulated High-Rate traffic entries.
+
+#### 2. Observed Sample Values
+
+| Traffic Type | CAN ID | Message Count | Messages per Second | Detection Status |
+|---|---|---:|---:|---|
+| Normal | 0x123 | 250 | 25 | Normal |
+| Normal | 0x456 | 180 | 18 | Normal |
+| Simulated High-Rate | 0x123 | 1200 | 120 | Suspicious |
+| Simulated High-Rate | 0x456 | 950 | 95 | Suspicious |
+
+These values are sample data. They demonstrate different traffic rates but do not, by themselves, establish verified ML detection performance.
+
+#### 3. Compatibility Checklist
+
+| Requirement | Current Finding | Status |
+|---|---|---|
+| Traffic type | Available as `traffic_type` | Available |
+| CAN ID | Available as `can_id` | Available |
+| Message count | Available as `message_count` | Available |
+| Message rate | Available as `messages_per_second` | Available |
+| Detection status | Available as `detection_status` | Available; source of status needs verification |
+| Prediction label | No `prediction_label` column in the available sample CSV | Missing from sample |
+| Anomaly score | No `anomaly_score` column in the available sample CSV | Missing from sample |
+| Traffic source | No `traffic_source` column in the available sample CSV | Missing from sample |
+| Rule baseline results | `results/rule_baseline_results.csv` was not found in the inspected project files | Pending |
+| Integration results | `results/integration_results.csv` was not found in the inspected project files | Pending |
+
+#### 4. Dashboard Mapping Notes
+
+- Map `can_id`, `message_count`, and `messages_per_second` from their existing columns.
+- `traffic_type` may be displayed as the traffic category.
+- Do not treat `detection_status` as a verified ML prediction unless its origin is confirmed.
+- Map `prediction_label` only when the actual model output provides a prediction label.
+- Map `anomaly_score` only when the model or integration output provides a real score.
+- Do not invent an anomaly score or create fake integration results.
+- A `traffic_source` field may be added to the integration contract if the integration needs to identify the source of each record.
+
+#### 5. Integration Status
+
+The available `sample_traffic.csv` supports sample dashboard data display. Actual compatibility with the rule-based baseline and ML integration outputs remains unverified because the corresponding result files were not found in the inspected project structure.
+
+**Current status: Partial compatibility documented; actual ML integration and result-file verification remain pending.**
 
 ### Pending Verification
 
