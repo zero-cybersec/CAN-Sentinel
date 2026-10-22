@@ -1,4 +1,4 @@
-<escape>{
+{
   "normal": {
     "message_count": 500,
     "messages_per_second": 50.0,
@@ -9,4 +9,4 @@
     "messages_per_second": 500.0,
     "duration_seconds": 10.0
   }
-}</escape>
+}
