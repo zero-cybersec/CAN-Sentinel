@@ -1,9 +1,8 @@
-
 {
   "normal": {
-    "message_count": 0,
-    "messages_per_second": 0.0,
-    "duration_seconds": 0.0
+    "message_count": 500,
+    "messages_per_second": 50.0,
+    "duration_seconds": 10.0
   },
   "high_rate": {
     "message_count": 5000,

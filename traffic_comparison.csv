@@ -1,0 +1,3 @@
+traffic_type,message_count,messages_per_second,duration_seconds,observation
+normal,500,50.0,10.0,Normal traffic baseline
+high_rate,5000,500.0,10.0,High-rate traffic test
