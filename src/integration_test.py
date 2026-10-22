@@ -100,11 +100,23 @@ def main():
     predictions = model.predict(df[FEATURES])
     scores = model.decision_function(df[FEATURES])
 
-    df["prediction"] = [
+    df["ml_prediction"] = [
         "NORMAL" if value == 1 else "ANOMALY"
         for value in predictions
     ]
     df["anomaly_score"] = scores
+    df["rate_based_prediction"] = [
+        "HIGH_RATE_SUSPECTED" if interval < 30.0
+        else "NORMAL_BY_BASELINE"
+        for interval in df["avg_interval_ms"]
+    ]
+    df["prediction"] = [
+        "HIGH_RATE_SUSPECTED" if interval < 30.0
+        else ml_label
+        for interval, ml_label in zip(
+            df["avg_interval_ms"], df["ml_prediction"]
+        )
+    ]
 
     RESULTS_DIR.mkdir(exist_ok=True)
     df.to_csv(OUTPUT_FILE, index=False)

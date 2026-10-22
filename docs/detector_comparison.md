@@ -21,3 +21,30 @@ Compare the existing Isolation Forest output with the experimental rule-based ba
 - The 30 ms baseline threshold was selected after examining the same datasets, so these results are not an independent evaluation.
 - Validate the threshold on separate unseen traffic and more varied normal scenarios before drawing broader conclusions.
 - The rule-based baseline and ML model are separate detectors; the baseline result does not mean the ML model has been fixed.
+
+## Hybrid Detection Results — 22 October 2026
+
+### Test results
+
+| Dataset | Windows | Hybrid prediction | Original ML anomalies |
+|---|---:|---|---:|
+| High-rate synthetic traffic | 52 | 52 HIGH_RATE_SUSPECTED | 0 |
+| Normal synthetic traffic | 8 | 0 HIGH_RATE_SUSPECTED | 2 |
+
+The provisional rate rule flags a window when `avg_interval_ms < 30.0`.
+The original model output is preserved in `ml_prediction`, and the original
+model score remains in `anomaly_score`. The `prediction` column now represents
+the hybrid output: the rate rule overrides the final label for windows below
+the threshold; otherwise the original ML label is retained.
+
+### Interpretation and limitations
+
+On these synthetic test datasets, the rate rule flagged all 52 high-rate
+windows and none of the 8 normal windows. The original ML model labelled all
+52 high-rate windows NORMAL and labelled 2 normal windows ANOMALY.
+
+These results do not establish real-world detection performance. The 30 ms
+threshold is provisional and was selected using the synthetic datasets; it
+must be validated on independent traffic before any production use. The
+hybrid rule supplements the ML model and does not fix the underlying ML
+model's failure to detect the tested high-rate traffic.
