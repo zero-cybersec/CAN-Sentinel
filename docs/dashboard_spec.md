@@ -1,106 +1,100 @@
 # CAN-Sentinel Dashboard Specification & Compatibility Checklist
 
+**Project:** CAN-Sentinel  
+**Module:** Dashboard & Documentation  
+**Last Updated:** 22 October 2026  
+**Status:** CSV schema reviewed; complete dashboard integration verification pending.
+
+---
+
 ## 1. Purpose
 
-The CAN-Sentinel dashboard provides a graphical interface for reviewing Controller Area Network (CAN) traffic statistics and displaying traffic classification results.
+This document defines the CAN-Sentinel dashboard requirements, expected CSV input formats, model-output mapping, validation rules, testing requirements, and integration status.
 
-The dashboard is designed to support comparison between normal traffic and simulated high-rate traffic. It will display traffic metrics and machine-learning predictions when verified integration results become available.
+The dashboard is intended to display CAN traffic statistics and detection results produced by the CAN-Sentinel traffic analysis pipeline.
 
-This document describes:
+The dashboard must distinguish between:
 
-- Dashboard layout and metrics.
-- Expected CSV input format.
-- Required prediction and traffic-source fields.
-- Compatibility checks against integration output.
-- CSV validation and error handling.
-- Steps required to display verified model results.
-- Current implementation status and pending work.
+- Normal traffic.
+- Traffic flagged by rule-based detection.
+- Traffic classified by the machine learning model.
+- Simulated high-rate traffic used for testing.
 
-**Important:** Demonstration data is used for interface development and testing. It must not be presented as actual CAN observations or verified machine-learning predictions.
+Sample or simulated traffic must not be presented as verified real-world attack detection.
+
+This document also records compatibility findings from the available baseline and integration CSV files.
 
 ---
 
 ## 2. Current Implementation Status
 
-### 2.1 Implemented Features
+The repository contains the following dashboard-related files:
 
-The current dashboard implementation includes:
+- `dashboard.py`
+- `sample_traffic.csv`
+- `docs/dashboard_spec.md`
 
-- PyQt5-based graphical user interface.
-- Dark-themed dashboard layout.
-- Summary cards for traffic statistics.
-- CAN traffic overview table.
-- Display of CAN identifiers and message counts.
-- Normal and simulated high-rate traffic presentation.
-- Message-count and messages-per-second fields in the dashboard design.
-- Detection-status field for displaying classification results.
-- CSV-loading interface.
-- Sample-data refresh functionality.
-- Last-updated information.
-- Demonstration-data labelling.
+The team integration branch also contains:
 
-The actual behavior of CSV loading and validation must be tested against the current `dashboard.py` implementation.
+- `results/rule_baseline_results.csv`
+- `results/integration_results.csv`
+- `results/normal_traffic.csv`
+- `results/high_rate_traffic.csv`
 
-### 2.2 Pending Work
+The two result CSV schemas have been reviewed through their GitHub previews.
 
-The following items require further verification or integration:
+### Verified observations
 
-- Compare the dashboard's expected CSV schema with the actual integration output.
-- Identify missing or mismatched columns.
-- Confirm the model's prediction-label format.
-- Determine whether the model produces an anomaly score.
-- Confirm how the traffic source is identified.
-- Validate traffic rates against reliable measurements.
-- Connect verified model results to the dashboard.
-- Test the dashboard using the actual integration CSV.
-- Capture a screenshot showing verified results after successful integration.
+1. The baseline CSV contains a `prediction` column with rule-based classifications.
+2. The integration CSV contains `ml_prediction`, `anomaly_score`, `rate_based_prediction`, and `prediction`.
+3. The visible high-rate rows show `ml_prediction` as `NORMAL`, while `rate_based_prediction` is `HIGH_RATE_SUSPECTED`.
+4. The existing sample dashboard CSV has a different schema from the integration output.
+
+### Remaining work
+
+- Confirm the complete result-file contents and dataset-level metrics.
+- Verify the model's anomaly-score interpretation.
+- Confirm how the integration pipeline creates the final `prediction` column.
+- Test the dashboard with actual integration output.
+- Confirm that displayed values are mapped to the correct source fields.
+
+**The existence of integration result files does not, by itself, prove that the dashboard is fully integrated or that the model successfully detects high-rate traffic.**
 
 ---
 
 ## 3. Dashboard Layout
 
-The dashboard contains summary cards, a traffic-results table, and data-source information.
+The dashboard should present traffic statistics and detection information in a readable format.
 
-### 3.1 Proposed Wireframe
+### Proposed layout
 
 ```text
-+-----------------------------------------------------------------------+
-| CAN-SENTINEL                         [Load CSV] [Refresh Sample Data] |
-| Automotive ECU Intrusion Detection Dashboard                          |
-+-----------------------------------------------------------------------+
-| Total Messages | Normal Messages | Anomalies | Traffic Rate           |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|                    CAN Traffic and Detection Results                  |
-|                                                                       |
-| Traffic Source | CAN ID | Message Count | Messages/sec | Prediction   |
-|----------------|--------|---------------|--------------|--------------|
-| Normal         | 0x123  | Example value | Example value | Normal       |
-| Normal         | 0x456  | Example value | Example value | Normal       |
-| High-Rate      | 0x123  | Example value | Example value | Sample label |
-| High-Rate      | 0x456  | Example value | Example value | Sample label |
-+-----------------------------------------------------------------------+
-| Anomaly Score | Detection Status | Data Source | Last Updated         |
-+-----------------------------------------------------------------------+
++--------------------------------------------------------------+
+|                    CAN-Sentinel Dashboard                   |
++--------------------------------------------------------------+
+| Total Messages | Unique CAN IDs | Normal | Suspicious        |
++--------------------------------------------------------------+
+| Traffic Source | CAN ID | Message Count | Message Rate       |
++--------------------------------------------------------------+
+| ML Prediction | Anomaly Score | Baseline Prediction          |
++--------------------------------------------------------------+
+|                    Traffic Results Table                     |
++--------------------------------------------------------------+
+| Data Source / Validation Status / Integration Status         |
++--------------------------------------------------------------+
 ```
 
-This wireframe is a logical specification. It does not guarantee that every field is already implemented in the current dashboard.
+### Display requirements
 
-All example rows and values are illustrative.
+- Display available traffic statistics.
+- Display the traffic source or source filename.
+- Display CAN IDs and message counts.
+- Display the ML prediction separately from the rule-based prediction.
+- Display the anomaly score only when a valid score is available.
+- Identify whether the displayed data is sample data or integration output.
+- Show appropriate validation messages when required columns are missing.
 
-### 3.2 Dashboard Components
-
-| Component | Purpose |
-|---|---|
-| Total Messages | Summarizes the number of messages represented by the loaded data |
-| Normal Messages | Displays message totals classified as normal |
-| Anomalies | Displays anomalous records or messages according to the documented metric |
-| Traffic Rate | Displays messages per second |
-| Traffic Results Table | Displays traffic details and classification results |
-| Load CSV | Selects a CSV file for dashboard display |
-| Refresh Sample Data | Refreshes demonstration data, if supported by the current implementation |
-| Data Source | Identifies the dataset used for the displayed results |
-| Last Updated | Indicates when the dashboard data was last updated |
+The layout is a specification. Actual implementation behavior must be verified by running and testing the dashboard.
 
 ---
 
@@ -108,489 +102,538 @@ All example rows and values are illustrative.
 
 ### 4.1 Total Messages
 
-**Purpose:** Display the total number of messages represented by the loaded records.
+The total number of messages represented by the currently loaded dataset.
 
-When each record contains a message count:
+The calculation must use the actual meaning of the input data. If each row represents an aggregate window rather than an individual CAN message, the dashboard must not simply count rows as messages.
 
-`Total Messages = Sum of message_count`
+### 4.2 Unique CAN IDs
 
-The calculation must match the actual dataset's structure. If each row represents an individual CAN message rather than an aggregated count, the total must be calculated accordingly.
+The number of distinct CAN identifiers in the loaded data.
 
-### 4.2 Normal Messages
+Candidate field:
 
-**Purpose:** Display the number of messages classified as normal.
+`can_id`
 
-The calculation must use a verified classification source, such as actual model predictions or documented ground-truth labels.
+### 4.3 Normal and Suspicious Results
 
-Demonstration labels must not be counted as verified model results.
+The dashboard may display counts of normal and suspicious classifications.
 
-### 4.3 Anomalies
+These counts must be derived from the correct prediction field and its documented label mapping.
 
-**Purpose:** Display the number of anomalous records or messages.
+Do not combine ML predictions and baseline predictions into one metric without explicitly defining the calculation.
 
-The dashboard must document whether this metric counts individual records or the number of messages represented by those records.
+### 4.4 Messages Per Second
 
-An anomaly must be identified using the project's verified detection logic or model output.
+The current sample CSV contains a `messages_per_second` column.
 
-A high message rate alone does not prove that an attack has been detected.
+However, neither the visible baseline CSV schema nor the visible integration CSV schema contains a direct `messages_per_second` column.
 
-### 4.4 Traffic Rate
+The integration output contains:
 
-**Purpose:** Display the number of CAN messages observed or generated per second.
+- `message_count`
+- `avg_interval_ms`
 
-Unit: `messages per second`
+A message-rate value must be calculated only after the aggregation window and interval definitions have been verified.
 
-When a reliable message count and measurement duration are available:
+Do not assume that the average interval alone is sufficient to calculate the correct rate for every aggregation window.
 
-`Messages per second = Message Count / Duration in Seconds`
+### 4.5 ML Prediction
 
-The dashboard must use a measured rate or calculate it from a reliable count and duration.
+Candidate field:
 
-A total message count must not be treated as a messages-per-second value without knowing the measurement interval.
+`ml_prediction`
 
-### 4.5 Unique CAN IDs
+Expected values observed in the integration output include:
 
-**Purpose:** Display the number of distinct CAN identifiers.
+- `NORMAL`
+- `ANOMALY`
 
-Calculation:
+These values should be displayed as model predictions, not automatically treated as confirmed real-world attack labels.
 
-`Unique CAN IDs = Number of distinct can_id values`
+### 4.6 Anomaly Score
 
-This metric is available only when the dataset contains CAN identifiers.
+Candidate field:
 
-### 4.6 Prediction Label
+`anomaly_score`
 
-**Purpose:** Display the class predicted by the existing machine-learning model.
+The integration output contains numeric values in this column.
 
-The prediction label must come from the actual model or integration output.
+The score's meaning, direction, range, and any threshold for classification must be verified against the model implementation before the dashboard interprets it.
 
-The dashboard must not create prediction labels randomly or infer them solely from the traffic rate.
+Do not assume that a higher score always means a higher anomaly risk.
 
-### 4.7 Anomaly Score
+### 4.7 Rule-Based Prediction
 
-**Purpose:** Display a model-generated anomaly score if the existing model or integration pipeline provides one.
+Candidate integration field:
 
-Before displaying this field, confirm:
+`rate_based_prediction`
 
-- Whether the model actually produces a score.
-- What the score represents.
-- Its valid range, if applicable.
-- Whether a higher or lower score indicates greater abnormality.
-- Whether a threshold has been defined and validated.
+The baseline CSV uses:
 
-If the model produces only class labels, the dashboard must not invent an anomaly score.
+`prediction`
 
-### 4.8 Traffic Source
+Examples visible in the baseline output include:
 
-**Purpose:** Identify the dataset or traffic category associated with a record.
+- `NORMAL_BY_BASELINE`
+- `HIGH_RATE_SUSPECTED`
 
-Examples of possible source labels include:
-
-- Normal
-- Simulated High-Rate
-
-These labels must reflect actual dataset metadata or documented source information.
-
-They must not be assigned arbitrarily when loading integration results.
-
-### 4.9 Detection Status
-
-**Purpose:** Present the classification in a human-readable form.
-
-Possible values include:
-
-- Normal
-- Suspicious
-- Anomaly
-- Unknown
-
-The actual labels must match the documented model output and classification logic.
-
-A prediction label and a detection status may represent related information, but their meanings must be defined clearly.
+These labels represent rule-based results, not the Isolation Forest model's predictions.
 
 ---
 
-## 5. Expected Dashboard CSV Format
+## 5. Expected CSV Input Format
 
-The normalized dashboard CSV schema is defined below.
+The repository currently contains multiple CSV schemas. They serve different purposes and must not be treated as interchangeable without mapping.
 
-| Column | Required | Description | Expected Data |
+### 5.1 Existing Dashboard Sample CSV
+
+File:
+
+`sample_traffic.csv`
+
+Observed header:
+
+```csv
+traffic_type,can_id,message_count,messages_per_second,detection_status
+```
+
+Observed sample rows:
+
+```csv
+Normal,0x123,250,25,Normal
+Normal,0x456,180,18,Normal
+Simulated High-Rate,0x123,1200,120,Suspicious
+Simulated High-Rate,0x456,950,95,Suspicious
+```
+
+This file provides sample traffic statistics and sample detection statuses.
+
+Its `detection_status` values must not be represented as verified ML predictions unless the file is explicitly populated by the actual detection pipeline and that provenance is verified.
+
+### 5.2 Rule-Based Baseline Output
+
+File:
+
+`results/rule_baseline_results.csv`
+
+The visible header is:
+
+```csv
+source_file,dataset,can_id,window_start_message,message_count,avg_interval_ms,min_interval_ms,threshold_ms,prediction
+```
+
+Field descriptions:
+
+| Column | Meaning |
+|---|---|
+| `source_file` | Source dataset filename |
+| `dataset` | Dataset identifier |
+| `can_id` | CAN identifier |
+| `window_start_message` | Starting message index for the evaluated window |
+| `message_count` | Number of messages in the window |
+| `avg_interval_ms` | Average message interval in milliseconds |
+| `min_interval_ms` | Minimum message interval in milliseconds |
+| `threshold_ms` | Interval threshold used by the baseline |
+| `prediction` | Rule-based classification |
+
+The visible examples include `NORMAL_BY_BASELINE` and `HIGH_RATE_SUSPECTED`.
+
+There is no dedicated `anomaly_score` column in this schema.
+
+There is also no direct `messages_per_second` or `traffic_source` column. The `source_file` field identifies a filename, not a separate traffic-source category.
+
+### 5.3 ML Integration Output
+
+File:
+
+`results/integration_results.csv`
+
+The visible header is:
+
+```csv
+source_file,can_id,message_count,avg_interval_ms,unique_payloads,payload_entropy,ml_prediction,anomaly_score,rate_based_prediction,prediction
+```
+
+Field descriptions:
+
+| Column | Meaning |
+|---|---|
+| `source_file` | Source dataset filename |
+| `can_id` | CAN identifier |
+| `message_count` | Number of messages represented by the result row |
+| `avg_interval_ms` | Average message interval in milliseconds |
+| `unique_payloads` | Number of unique payloads represented |
+| `payload_entropy` | Payload entropy feature or statistic |
+| `ml_prediction` | Machine learning prediction |
+| `anomaly_score` | Numeric score produced by the integration pipeline |
+| `rate_based_prediction` | Rule-based or rate-based prediction |
+| `prediction` | Combined or final prediction; exact generation logic must be verified |
+
+The exact meaning of the final `prediction` column must be confirmed by inspecting the integration code.
+
+Do not assume that it always represents the ML model's output.
+
+### 5.4 Schema Compatibility Summary
+
+| Dashboard requirement | Sample CSV | Baseline CSV | Integration CSV |
 |---|---|---|---|
-| `traffic_source` | Required for source identification | Identifies the source dataset or traffic category | Text |
-| `can_id` | Required when displaying per-ID records | CAN identifier | Text |
-| `message_count` | Required for aggregated message statistics | Number of messages represented by the record | Non-negative integer |
-| `messages_per_second` | Required when traffic-rate information is available | Observed or reliably calculated rate | Non-negative numeric value |
-| `prediction_label` | Required for verified model-prediction display | Model-predicted class | Text or documented model label |
-| `anomaly_score` | Conditional | Model-generated anomaly score, if available | Numeric value with documented meaning |
-| `detection_status` | Required for a human-readable detection display | Verified or mapped classification | Text |
-
-The actual integration output may use different column names.
-
-The integration CSV must be inspected before implementing mappings or declaring columns missing.
-
-### 5.1 Prediction Label and Detection Status
-
-`prediction_label` should preserve the class produced by the model.
-
-`detection_status` should provide the corresponding human-readable status when a documented mapping is available.
-
-For example, a numeric model label may require mapping to a meaningful class name. The mapping must come from the model's training labels, configuration, or integration implementation.
-
-Do not assume that a particular numeric value means Normal or Anomaly without verifying the mapping.
-
-### 5.2 Anomaly Score
-
-The `anomaly_score` field is conditional on the actual model output.
-
-If the integration pipeline does not produce a score, document the field as unavailable rather than filling it with an invented value.
-
-### 5.3 Traffic Source
-
-The `traffic_source` field should identify the origin or category of each record.
-
-If source information exists only in the dataset filename or metadata, it may be added during preprocessing when the source is known and documented.
+| Traffic type | `traffic_type` | `dataset` | No direct equivalent shown |
+| Traffic source | No dedicated field | `source_file` | `source_file` |
+| CAN ID | `can_id` | `can_id` | `can_id` |
+| Message count | `message_count` | `message_count` | `message_count` |
+| Messages per second | `messages_per_second` | Not present | Not present |
+| ML prediction | Not present | Not present | `ml_prediction` |
+| Anomaly score | Not present | Not present | `anomaly_score` |
+| Rule-based prediction | `detection_status` is sample status | `prediction` | `rate_based_prediction` |
+| Final prediction | Not present as a verified model output | No separate field | `prediction` |
 
 ---
 
 ## 6. Dashboard CSV Compatibility Checklist
 
-### 6.1 Objective
+This checklist compares the documented dashboard requirements with the visible result-file schemas.
 
-The objective is to compare the expected dashboard CSV format with the actual output generated by the CAN-Sentinel integration pipeline.
+### 6.1 Required Columns
 
-The expected integration output path is:
-
-`results/integration_results.csv`
-
-The actual file must be available and inspected before the comparison can be completed.
-
-If the file is unavailable, the review must remain pending.
-
-### 6.2 Compatibility Table
-
-Complete the following table after inspecting the actual integration CSV.
-
-| Expected Dashboard Field | Actual Column Name | Status | Required Action |
+| Requirement | Expected or candidate field | Finding | Status |
 |---|---|---|---|
-| `traffic_source` | Pending inspection | Pending | Identify source metadata or a documented mapping |
-| `can_id` | Pending inspection | Pending | Confirm the CAN identifier field exists |
-| `message_count` | Pending inspection | Pending | Confirm message-count availability and meaning |
-| `messages_per_second` | Pending inspection | Pending | Verify measured or calculated traffic rate |
-| `prediction_label` | Pending inspection | Pending | Identify the model prediction column |
-| `anomaly_score` | Pending inspection | Pending | Confirm whether the model produces a score |
-| `detection_status` | Pending inspection | Pending | Confirm the classification field or mapping |
+| CAN ID | `can_id` | Available in all three schemas | Compatible field |
+| Message count | `message_count` | Available in all three schemas | Compatible field |
+| Traffic source | `traffic_source` or mapped source field | Integration files use `source_file` | Mapping required |
+| Prediction label | `prediction_label` or mapped prediction field | Integration output has `ml_prediction` and `prediction` | Mapping required |
+| Anomaly score | `anomaly_score` | Present in integration output only | Available in integration schema |
+| Message rate | `messages_per_second` | Present in sample CSV, absent from visible result schemas | Derivation or pipeline change required |
+| Baseline prediction | Baseline `prediction` or integration `rate_based_prediction` | Available | Keep separate from ML output |
 
-### 6.3 Compatibility Status Definitions
+### 6.2 Prediction Label Mapping
 
-Use the following statuses:
+The integration output contains two relevant fields:
 
-- **Match:** The expected field exists and has the correct meaning.
-- **Rename Required:** An equivalent field exists under a different column name.
-- **Transformation Required:** The field must be derived or mapped using documented logic.
-- **Unavailable:** The required information is not provided by the actual output.
-- **Pending:** The actual output has not yet been inspected.
+- `ml_prediction`
+- `prediction`
 
-Do not mark a column as missing merely because it is absent from the expected format of another file.
+The baseline output contains:
 
-Inspect the actual integration output and relevant source code before determining compatibility.
+- `prediction`
 
-### 6.4 Missing or Mismatched Fields
+Recommended mapping:
 
-The following fields require specific verification:
+- Display `ml_prediction` in the dashboard's **ML Prediction** field.
+- Display `rate_based_prediction` in the dashboard's **Rule-Based Prediction** field.
+- Display integration `prediction` as **Final Prediction** only after confirming its generation logic.
 
-1. **Prediction Label:** Confirm that the integration output contains the model's actual predicted class and establish its meaning.
-2. **Anomaly Score:** Confirm whether the model produces a score and document its interpretation.
-3. **Traffic Source:** Confirm how the source dataset or traffic category is identified.
-4. **Message Count:** Confirm whether counts are available per CAN ID, per dataset, or per record.
-5. **Messages per Second:** Confirm whether the rate is supplied directly or can be calculated from reliable duration information.
-6. **Detection Status:** Confirm whether the output provides a status or requires a documented mapping from the prediction label.
+Do not rename the baseline's `prediction` field to `ml_prediction`. They represent different outputs.
 
-These are verification requirements, not claims that the columns are definitely missing.
+### 6.3 Anomaly Score Mapping
 
-### 6.5 Compatibility Review Procedure
+Map the integration output's `anomaly_score` to the dashboard's **Anomaly Score** field.
 
-1. Obtain the actual `results/integration_results.csv` file.
-2. Inspect the CSV headers and representative data rows.
-3. Review the integration script to identify how its output columns are generated.
-4. Review the existing model's output format and class-label mapping.
-5. Compare each actual column with the expected dashboard fields.
-6. Record matching, renamed, transformed, unavailable, and pending fields.
-7. Identify any missing or mismatched columns supported by the actual inspection.
-8. Define necessary transformations without changing the meaning of the original data.
-9. Verify the normalized CSV using a small test file.
-10. Load the normalized results into the dashboard.
-11. Check the table and summary metrics against the source data.
-12. Record test outcomes and unresolved issues.
+Before using the value to classify traffic:
+
+1. Inspect the model implementation.
+2. Confirm the score's semantics and direction.
+3. Confirm any threshold or decision rule.
+4. Verify that the dashboard preserves the original score correctly.
+
+The baseline output has no dedicated anomaly-score field. Do not invent a score for it.
+
+### 6.4 Traffic Source Mapping
+
+The integration output contains `source_file`, which can identify the source dataset filename.
+
+A dashboard may display this field as **Source File**.
+
+If the dashboard specifically requires a traffic-source category, such as normal or high-rate traffic, the mapping must be defined and validated. A filename should not silently be treated as a verified attack label.
+
+### 6.5 Observed ML-versus-Baseline Disagreement
+
+In the visible high-rate rows of `integration_results.csv`:
+
+- `ml_prediction` is `NORMAL`.
+- `rate_based_prediction` is `HIGH_RATE_SUSPECTED`.
+- The final `prediction` field is shown as `HIGH_RATE_SUSPECTED`.
+
+This indicates disagreement between the ML output and the rate-based baseline in the displayed rows.
+
+It does not establish the complete model detection rate, false-positive rate, or overall accuracy. Those require analysis of the complete dataset and verified labels.
+
+### 6.6 Compatibility Conclusion
+
+The integration CSV contains candidate fields for ML prediction and anomaly-score display.
+
+However, the dashboard's documented field names do not exactly match all actual CSV field names. Explicit mapping is required.
+
+Full compatibility must not be declared until the dashboard has been tested with the actual integration output.
 
 ---
 
 ## 7. CSV Validation and Error Handling
 
-The dashboard should validate CSV files before replacing the currently displayed data.
+The dashboard should validate a CSV before attempting to display its contents.
 
-### 7.1 Validation Requirements
+### 7.1 File Validation
 
-The dashboard should check:
+Check that:
 
-- Whether the file can be opened.
-- Whether required columns exist.
-- Whether column names can be mapped unambiguously.
-- Whether numeric fields contain valid values.
-- Whether message counts and traffic rates are non-negative.
-- Whether the file contains usable records.
-- Whether prediction labels follow the documented output format.
-- Whether any anomaly score has a documented interpretation.
+- The file exists and can be opened.
+- The file is a valid CSV.
+- The header row is present.
+- The file contains at least one usable data row.
+- Required values are available and correctly typed.
 
-### 7.2 Error Cases
+### 7.2 Column Validation
 
-The dashboard should show a clear error message when:
+The dashboard must identify the expected input format and use the corresponding field mapping.
 
-- The selected file cannot be opened.
-- Required columns are missing.
-- Numeric values are invalid.
-- Negative values appear where they are not valid.
-- The CSV file contains no usable records.
-- The input schema cannot be mapped to the expected dashboard format.
+For the sample format, validate the documented sample columns.
 
-When loading fails, the previously loaded valid data should remain visible where possible.
+For integration results, validate the relevant fields, including:
 
-The application must not silently substitute fabricated values for missing information.
+- `source_file`
+- `can_id`
+- `message_count`
+- `ml_prediction`
+- `anomaly_score`
+- `rate_based_prediction`
+- `prediction`
+
+If a required field is absent, report the missing column clearly.
+
+Optional fields may be displayed as unavailable when they are not present. The dashboard must not silently create fake predictions or anomaly scores.
+
+### 7.3 Value Validation
+
+Check that:
+
+- `can_id` is represented consistently.
+- Message counts are numeric and valid.
+- Interval values are numeric where present.
+- Anomaly scores are numeric where present.
+- Prediction fields contain recognized labels.
+- Empty or invalid values are handled without crashing the dashboard.
+
+### 7.4 Error Messages
+
+Useful messages include:
+
+- "Unable to open CSV file."
+- "CSV file is empty."
+- "Required column is missing."
+- "Invalid numeric value found."
+- "Anomaly score is not available in this dataset."
+- "Actual ML integration has not been verified."
 
 ---
 
 ## 8. Integration Steps for Verified Model Results
 
-The dashboard should display actual detection results only after the existing pipeline has generated and validated them.
+The following steps describe the required workflow. They do not imply that all steps have already been completed.
 
-### Step 1: Obtain Verified Datasets
+### Step 1: Identify the output file
 
-Obtain the team's verified normal and high-rate traffic CSV files.
-
-Expected paths may include:
-
-- `results/normal_traffic.csv`
-- `results/high_rate_traffic.csv`
-
-Confirm the actual paths and file formats with the simulation team.
-
-### Step 2: Inspect the Integration Output
-
-Obtain:
+Use the actual integration output generated by the team's model and integration workflow:
 
 `results/integration_results.csv`
 
-Inspect its column names, data types, and representative rows.
+Do not substitute the sample CSV for model output.
 
-If the output has not been generated, document this dependency and do not fabricate results.
+### Step 2: Inspect the schema
 
-### Step 3: Verify Feature Extraction
+Verify the header and available fields.
 
-Review the existing feature-extraction implementation and identify the exact input features required by the trained model.
+Confirm that the output contains the expected prediction, score, source, CAN ID, and message-count fields.
 
-Do not assume that the dashboard CSV columns are the same as the model's feature columns.
+### Step 3: Review prediction generation
 
-### Step 4: Verify Model Predictions
+Inspect the integration code to establish how these fields are produced:
 
-Use the existing trained model through the project's established prediction pipeline.
+- `ml_prediction`
+- `rate_based_prediction`
+- `prediction`
+- `anomaly_score`
 
-Confirm the meaning of its prediction labels.
+Confirm whether `prediction` represents an ML result, a baseline result, or a combined decision.
 
-If anomaly scores are available, inspect how they are generated and interpreted.
+### Step 4: Define the field mapping
 
-Do not retrain the model or create substitute predictions unless the team determines that doing so is necessary.
+Map the actual CSV fields to the dashboard fields.
 
-### Step 5: Normalize the Results
+Keep the ML and rule-based results separate so that disagreements remain visible.
 
-Map the actual integration output to the dashboard schema.
+### Step 5: Validate score semantics
 
-Preserve the original prediction values and use documented mappings for display labels.
+Determine how the model's score is calculated and interpreted.
 
-Add traffic-source information only when it can be established from verified dataset metadata or the known source file.
+Do not invent a classification threshold or assume the score's direction without code-level evidence.
 
-Calculate traffic rates only when reliable message counts and measurement durations are available.
+### Step 6: Load actual results
 
-### Step 6: Validate the Normalized CSV
+Update or configure the dashboard to read the verified integration output using the documented mapping.
 
-Confirm that the normalized output contains the required fields for the selected dashboard features.
+Ensure that the displayed data source is clearly identified.
 
-Check numeric values, labels, and record counts.
+### Step 7: Test both datasets
 
-Document any fields that remain unavailable.
+Evaluate the normal and high-rate datasets separately.
 
-### Step 7: Load Results into the Dashboard
+Verify the number of rows processed, available predictions, score values, and displayed classifications.
 
-Use the dashboard's CSV-loading interface to load the normalized output.
+Compare ML predictions against the rule-based baseline.
 
-Verify that:
+### Step 8: Record test results
 
-- Traffic records appear correctly.
-- Message counts match the input.
-- Traffic rates match the verified data.
-- Prediction labels correspond to the model output.
-- Detection statuses follow the documented mapping.
-- Summary cards agree with the underlying records.
+Document the tested file, schema, mapping, observations, and any failures.
 
-### Step 8: Capture Evidence
+Report full-dataset metrics only after they have been calculated from the complete result data.
 
-After successful validation, capture a screenshot of the dashboard showing the verified results.
+### Step 9: Update the status
 
-Clearly label screenshots containing demonstration data.
+Mark integration as verified only after successful testing.
 
-### Step 9: Document Test Results
-
-Record:
-
-- The input dataset used.
-- The output file tested.
-- The validation checks performed.
-- Any compatibility issues found.
-- Any unresolved limitations.
-
-Successful CSV loading alone does not prove that the model detects attacks correctly.
+Until then, identify the feature as pending verification.
 
 ---
 
 ## 9. Testing Requirements
 
-The following tests should be completed.
+The following tests should be performed before declaring the dashboard compatible with the integration output.
 
-| Test | Expected Outcome | Status |
-|---|---|---|
-| Load a valid CSV file | Records display correctly | Pending |
-| Load normal traffic results | Counts and rates match verified input | Pending |
-| Load high-rate traffic results | Counts and rates match verified input | Pending |
-| Verify prediction labels | Labels match actual model output | Pending |
-| Verify anomaly score | Score is shown only if actually provided | Pending |
-| Verify traffic source | Source corresponds to documented dataset metadata | Pending |
-| Load a file with missing columns | Clear error message appears | Pending |
-| Load a file with invalid numeric values | Invalid input is rejected | Pending |
-| Load an empty CSV | Clear error message appears | Pending |
-| Verify summary metrics | Displayed values match underlying records | Pending |
-| Verify failed-load behavior | Previous valid data is preserved where possible | Pending |
-| Verify sample-data labelling | Demonstration data is clearly distinguished from verified results | Pending |
+### 9.1 Schema Tests
 
-Update each test status only after the test has actually been performed.
+- Verify the expected columns in the sample CSV.
+- Verify the expected columns in the baseline CSV.
+- Verify the expected columns in the integration CSV.
+- Confirm that the correct mapping is selected for each input format.
+- Confirm that missing required fields are reported.
+
+### 9.2 Prediction Display Tests
+
+- Verify that `ml_prediction` is displayed as the ML result.
+- Verify that `rate_based_prediction` is displayed separately.
+- Verify the meaning of the final `prediction` field.
+- Confirm that the dashboard does not label sample statuses as verified ML predictions.
+
+### 9.3 Anomaly Score Tests
+
+- Verify that the score is read as a numeric value.
+- Verify that the displayed value corresponds to the source CSV.
+- Confirm the score's interpretation against the model code.
+- Confirm that a missing score is handled without fabricating a value.
+
+### 9.4 Dataset Tests
+
+- Test with the normal traffic dataset.
+- Test with the high-rate traffic dataset.
+- Compare the traffic intervals and message counts using the verified dataset definitions.
+- Record cases where the ML output disagrees with the baseline.
+
+### 9.5 Full-Dataset Evaluation
+
+When the complete labelled dataset is available, calculate and report:
+
+- Total evaluated rows.
+- NORMAL and ANOMALY prediction counts.
+- False positives.
+- False negatives, where ground-truth labels are available.
+- Detection rate and other relevant metrics, where the labels and calculation method support them.
+
+Do not derive these metrics from a few visible GitHub preview rows.
 
 ---
 
-## 10. Current Limitations
+## 10. Dependencies and Pending Integration
 
-- Demonstration data does not represent verified live CAN traffic.
-- Demonstration statuses are not actual machine-learning predictions.
-- The availability of an anomaly score has not been established by this specification.
-- Actual integration-output column names must be inspected before compatibility can be confirmed.
-- Traffic rates require reliable measurement data.
-- Model performance cannot be inferred from the dashboard layout or sample predictions.
-- Reliable false-positive and false-negative calculations require suitable expected labels.
-- End-to-end detection performance must be assessed through integration testing.
+The dashboard's existing sample CSV and the team's integration output use different schemas.
+
+The integration output has the following additional model and feature fields:
+
+- `unique_payloads`
+- `payload_entropy`
+- `ml_prediction`
+- `anomaly_score`
+- `rate_based_prediction`
+
+The dashboard mapping must be explicitly defined before these fields can be displayed correctly.
+
+### Pending items
+
+1. Verify the integration code's output-field semantics.
+2. Validate the complete baseline and integration CSV files.
+3. Confirm how the dashboard calculates or obtains message rate.
+4. Test the dashboard with the actual integration output.
+5. Verify that displayed labels and scores match the source results.
+6. Document the test evidence and final integration status.
+
+The baseline output and ML output must remain distinguishable throughout the dashboard and documentation.
 
 ---
 
-## 11. Dependencies
+## 11. Current Limitations
 
-The dashboard depends on the following project components:
+### 11.1 Sample Data
 
-### Attack Simulation
+The dashboard sample file contains illustrative normal and simulated high-rate rows.
 
-Provides verified normal and simulated high-rate traffic datasets.
+These values are not, by themselves, evidence of successful model detection.
 
-### Feature Extraction
+### 11.2 Schema Differences
 
-Transforms traffic data into the features expected by the existing model.
+The sample, baseline, and integration CSV files have different column names and purposes.
 
-### Machine Learning
+Explicit field mapping is required.
 
-Provides the trained model, prediction output, and documented class-label meanings.
+### 11.3 ML and Baseline Disagreement
 
-### Integration
+The visible high-rate integration rows show `NORMAL` from the ML model while the rate-based baseline flags the traffic as `HIGH_RATE_SUSPECTED`.
 
-Runs the required pipeline and produces results that can be checked against the dashboard schema.
+This is an observed disagreement that requires investigation.
 
-### Dashboard
+It must not be presented as proof of successful ML detection.
 
-Loads the normalized result data, displays traffic statistics, and presents verified prediction information.
+### 11.4 Anomaly Score Interpretation
 
-The dashboard specification can be prepared before the other modules are complete, but actual compatibility and detection results must remain unverified until the necessary outputs are available.
+The presence of `anomaly_score` does not establish the correct threshold, direction, or meaning of the score.
+
+These details require verification against the model implementation.
+
+### 11.5 Message Rate
+
+The integration CSV does not contain a direct `messages_per_second` field in its visible header.
+
+A validated calculation or an explicit pipeline output field is required if the dashboard needs this metric.
+
+### 11.6 Verification Scope
+
+The current findings are based on visible GitHub CSV headers and sample rows.
+
+Complete dataset statistics, confusion-matrix metrics, and end-to-end dashboard behavior have not been established by those previews alone.
 
 ---
 
 ## 12. Deliverable Status
 
-### Completed Documentation
-
-- Dashboard layout and metric definitions documented.
-- Expected dashboard CSV schema documented.
-- Prediction-label, anomaly-score, and traffic-source requirements documented.
-- CSV compatibility-review procedure documented.
-- Missing-column verification process documented.
-- Integration steps for displaying verified model results documented.
-- Validation and testing requirements documented.
-### Day 9 — CSV Compatibility Findings
+**Owner:** Dashboard & Documentation
 
 **Date:** 22 October 2026
 
-#### 1. Available Sample CSV
-
-The currently available CSV file is `sample_traffic.csv`. It contains the following columns:
-
-- `traffic_type`
-- `can_id`
-- `message_count`
-- `messages_per_second`
-- `detection_status`
-
-The sample contains Normal and Simulated High-Rate traffic entries.
-
-#### 2. Observed Sample Values
-
-| Traffic Type | CAN ID | Message Count | Messages per Second | Detection Status |
-|---|---|---:|---:|---|
-| Normal | 0x123 | 250 | 25 | Normal |
-| Normal | 0x456 | 180 | 18 | Normal |
-| Simulated High-Rate | 0x123 | 1200 | 120 | Suspicious |
-| Simulated High-Rate | 0x456 | 950 | 95 | Suspicious |
-
-These values are sample data. They demonstrate different traffic rates but do not, by themselves, establish verified ML detection performance.
-
-#### 3. Compatibility Checklist
-
-| Requirement | Current Finding | Status |
+| Deliverable | Status | Evidence / Notes |
 |---|---|---|
-| Traffic type | Available as `traffic_type` | Available |
-| CAN ID | Available as `can_id` | Available |
-| Message count | Available as `message_count` | Available |
-| Message rate | Available as `messages_per_second` | Available |
-| Detection status | Available as `detection_status` | Available; source of status needs verification |
-| Prediction label | No `prediction_label` column in the available sample CSV | Missing from sample |
-| Anomaly score | No `anomaly_score` column in the available sample CSV | Missing from sample |
-| Traffic source | No `traffic_source` column in the available sample CSV | Missing from sample |
-| Rule baseline results | `results/rule_baseline_results.csv` was not found in the inspected project files | Pending |
-| Integration results | `results/integration_results.csv` was not found in the inspected project files | Pending |
+| Review dashboard specification | Completed | Existing specification reviewed |
+| Inspect baseline CSV schema | Completed | Visible GitHub header and rows inspected |
+| Inspect integration CSV schema | Completed | Visible GitHub header and rows inspected |
+| Identify prediction fields | Completed | `ml_prediction`, `rate_based_prediction`, and `prediction` identified |
+| Identify anomaly-score field | Completed | `anomaly_score` exists in integration output |
+| Identify source mapping | Partially completed | `source_file` is available; source-category mapping requires confirmation |
+| Document schema differences | Completed in this specification | Sample, baseline, and integration schemas compared |
+| Verify full-dataset metrics | Pending | Complete dataset-level analysis required |
+| Verify anomaly-score semantics | Pending | Model implementation must be reviewed |
+| Test dashboard with actual integration output | Pending | End-to-end test evidence required |
+| Confirm final integration status | Pending | Must follow successful testing |
 
-#### 4. Dashboard Mapping Notes
+### Final Conclusion
 
-- Map `can_id`, `message_count`, and `messages_per_second` from their existing columns.
-- `traffic_type` may be displayed as the traffic category.
-- Do not treat `detection_status` as a verified ML prediction unless its origin is confirmed.
-- Map `prediction_label` only when the actual model output provides a prediction label.
-- Map `anomaly_score` only when the model or integration output provides a real score.
-- Do not invent an anomaly score or create fake integration results.
-- A `traffic_source` field may be added to the integration contract if the integration needs to identify the source of each record.
+The team's baseline and integration CSV files contain different schemas. The integration output provides `ml_prediction` and `anomaly_score`, while the baseline output provides a rule-based `prediction` and interval-related fields.
 
-#### 5. Integration Status
+The dashboard can use these fields only after explicit mapping and validation. In the visible high-rate integration rows, the ML prediction is `NORMAL` while the rate-based baseline reports `HIGH_RATE_SUSPECTED`. This discrepancy must remain documented until the complete model evaluation explains the behavior.
 
-The available `sample_traffic.csv` supports sample dashboard data display. Actual compatibility with the rule-based baseline and ML integration outputs remains unverified because the corresponding result files were not found in the inspected project structure.
-
-**Current status: Partial compatibility documented; actual ML integration and result-file verification remain pending.**
-
-### Pending Verification
-
-- Inspect the actual `results/integration_results.csv` file.
-- Confirm the actual prediction-label column.
-- Confirm whether an anomaly-score field is available.
-- Confirm how traffic source is represented.
-- Record confirmed missing or mismatched columns.
-- Validate the normalized output in the dashboard.
-- Capture a screenshot of verified integration results.
-
-**Current conclusion:** The dashboard's expected input format and compatibility-review process are documented. Compatibility with the actual integration output has not been confirmed until the output file is inspected and tested.
+**Current status:** CSV schemas reviewed and initial compatibility mapping documented. Full-dataset evaluation, score interpretation, and dashboard integration testing remain pending. No claim of successful high-rate ML detection is made.
