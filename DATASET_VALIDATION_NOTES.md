@@ -74,3 +74,27 @@ Please verify:
 - [x] Summary statistics checked
 - [x] Simulation observations reviewed
 - [ ] Integration tests executed by the team
+
+
+## 9. Dataset Validation Status
+
+### Verified from GitHub previews
+
+- [x] Normal CSV has 500 data rows and 1 header row.
+- [x] High-rate CSV has 5000 data rows and 1 header row.
+- [x] Both CSV previews show the expected four columns.
+- [x] Summary statistics match the recorded observations.
+- [x] Visible timestamp intervals are consistent with the configured traffic rates.
+- [x] High-rate traffic is configured at 10 times the normal rate.
+
+### Pending Verification
+
+- [ ] Validate timestamp ordering and intervals across all rows.
+- [ ] Verify every CAN ID and payload format.
+- [ ] Independently recalculate summary statistics from both complete CSV files.
+- [ ] Run the existing validation and comparison scripts and record actual results.
+- [ ] Confirm integration tests with the team.
+
+### Limitations
+
+These are synthetic simulation results, not measurements from a real vehicle. A higher message rate alone does not prove an actual intrusion or establish real-world detection accuracy.
