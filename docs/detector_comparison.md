@@ -48,3 +48,12 @@ threshold is provisional and was selected using the synthetic datasets; it
 must be validated on independent traffic before any production use. The
 hybrid rule supplements the ML model and does not fix the underlying ML
 model's failure to detect the tested high-rate traffic.
+
+## Verification Log — 23 October 2026
+
+- Rule-baseline tests: 4 passed.
+- Integration test: completed successfully and regenerated `results/integration_results.csv`.
+- Hybrid output: 52 high-rate windows were labelled `HIGH_RATE_SUSPECTED`.
+- Normal traffic output: 6 windows were labelled `NORMAL` and 2 were labelled `ANOMALY` by the hybrid output.
+- The original ML predictions and anomaly scores remain available in the results CSV.
+- These are repeat-run verification results on the existing synthetic datasets, not independent validation or evidence of improved ML performance.
