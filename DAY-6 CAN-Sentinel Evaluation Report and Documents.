@@ -1,0 +1,179 @@
+# CAN-Sentinel: Model Evaluation & Benchmark Report Template
+
+**Document Type:** Standard Evaluation Report Template  
+**System:** CAN-Sentinel Automotive IDS (Isolation Forest Engine)  
+**Standard Version:** 1.0  
+**Target Audience:** ML Engineering (Avinash), Traffic Generation (Zeeshan), Security Validation Leads  
+
+---
+
+## 1. Evaluation Run Metadata
+
+| Field | Run Details / Configuration |
+| :--- | :--- |
+| **Evaluation Run ID** | `EVAL-[YYYYMMDD]-[BUILD_NO]` (e.g., `EVAL-20261025-01`) |
+| **Execution Date & Time** | `YYYY-MM-DD HH:MM:SS UTC` |
+| **Model Artifact** | Model filename / version (e.g., `iforest_v1.2.joblib`) |
+| **Model Parameters** | `n_estimators=100`, `contamination=0.05`, `random_state=42` |
+| **Feature Extractor Version** | Feature pipeline version / commit hash |
+| **Window Duration ($\Delta t$)** | `1.0 s` (or configured rolling/tumbling window size) |
+| **Nominal Traffic Source** | Dataset path / commit (e.g., `normal_traffic.csv`) |
+| **Attack / High-Rate Source** | Dataset path / commit (e.g., `high_rate_traffic.csv`) |
+| **Evaluator** | Evaluator name / team |
+
+---
+
+## 2. Executive Benchmark Scorecard
+
+### 2.1 High-Level KPI Summary
+
+| Benchmark Metric | Target Threshold | Observed Value | Status (Pass / Watch / Fail) |
+| :--- | :--- | :--- | :--- |
+| **Attack Detection Rate (Recall / TPR)** | $\ge 99.0\%$ | `[0.00%]` | `[PASS / FAIL]` |
+| **False Positive Rate (FPR)** | $\le 5.0\%$ | `[0.00%]` | `[PASS / FAIL]` |
+| **Precision** | $\ge 95.0\%$ | `[0.00%]` | `[PASS / FAIL]` |
+| **F1-Score** | $\ge 0.970$ | `[0.000]` | `[PASS / FAIL]` |
+| **Overall Accuracy** | $\ge 95.0\%$ | `[0.00%]` | `[PASS / FAIL]` |
+| **Global Score Separation ($\Delta_s$)** | $> 0.000$ (No overlap) | `[0.0000]` | `[PASS / FAIL]` |
+| **Mean Time-to-Detect (MTTD)** | $\le 1.0\text{ window}$ ($\le 1000\text{ ms}$) | `[0 ms]` | `[PASS / FAIL]` |
+
+---
+
+## 3. Global Confusion Matrix & Core Metrics
+
+### 3.1 Global 2x2 Matrix
+
+```
+                        Actual Class (Ground Truth)
+                       ┌─────────────────┬─────────────────┐
+                       │  High-Rate (P)  │   Normal (N)    │
+     ┌─────────────────┼─────────────────┼─────────────────┤
+     │ Predicted       │  True Positive  │ False Positive  │
+     │ Anomaly (Pos)   │     (TP): [ ]   │     (FP): [ ]   │
+Pred ├─────────────────┼─────────────────┼─────────────────┤
+     │ Predicted       │ False Negative  │  True Negative  │
+     │ Normal (Neg)    │     (FN): [ ]   │     (TN): [ ]   │
+     └─────────────────┴─────────────────┴─────────────────┘
+```
+
+### 3.2 Metric Definitions & Calculations
+
+| Metric | Formula | Value | Notes / Implications |
+| :--- | :--- | :--- | :--- |
+| **True Positive Rate (TPR / Recall)** | $\frac{\text{TP}}{\text{TP} + \text{FN}}$ | `[0.00%]` | Percentage of malicious/high-rate windows successfully caught. |
+| **False Positive Rate (FPR)** | $\frac{\text{FP}}{\text{FP} + \text{TN}}$ | `[0.00%]` | Percentage of legitimate normal windows incorrectly flagged. |
+| **Specificity (True Negative Rate)** | $\frac{\text{TN}}{\text{TN} + \text{FP}}$ | `[0.00%]` | Ability to reject legitimate vehicle communication without alarm. |
+| **Precision (Positive Predictive Value)**| $\frac{\text{TP}}{\text{TP} + \text{FP}}$ | `[0.00%]` | Reliability of an anomaly alert when triggered. |
+| **F1-Score** | $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$ | `[0.0000]` | Harmonic mean of precision and detection sensitivity. |
+| **Balanced Accuracy** | $\frac{\text{TPR} + \text{TNR}}{2}$ | `[0.00%]` | Unbiased accuracy across balanced/imbalanced traffic streams. |
+
+---
+
+## 4. Per-CAN ID Performance Breakdown
+
+Evaluates detection sensitivity and false alarms individually for each arbitration ID on the bus.
+
+| CAN ID | Total Normal Windows | Total Attack Windows | TP | FP | TN | FN | Recall (TPR) | FPR | Precision | Mean Score (Normal) | Mean Score (Attack) | ID Score Separation ($\Delta s_i$) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `0x100` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[0.0%]` | `[0.0%]` | `[0.0%]` | `[+0.0000]` | `[-0.0000]` | `[0.0000]` |
+| `0x120` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[0.0%]` | `[0.0%]` | `[0.0%]` | `[+0.0000]` | `[-0.0000]` | `[0.0000]` |
+| `0x200` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[0.0%]` | `[0.0%]` | `[0.0%]` | `[+0.0000]` | `[-0.0000]` | `[0.0000]` |
+| `0x300` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[0.0%]` | `[0.0%]` | `[0.0%]` | `[+0.0000]` | `[-0.0000]` | `[0.0000]` |
+| *Bus Total* | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[0.0%]` | `[0.0%]` | `[0.0%]` | `[+0.0000]` | `[-0.0000]` | `[0.0000]` |
+
+---
+
+## 5. Detection Latency & Responsiveness Analysis
+
+Measures how quickly the IDS detects an anomalous injection after attack traffic begins appearing on the bus.
+
+### 5.1 Latency Measurements by CAN ID
+
+$$\text{Detection Latency} = T_{\text{first\_alert}} - T_{\text{attack\_start}}$$
+
+| CAN ID | Attack Onset Time ($t_0$) | First Alert Timestamp ($t_{\text{alert}}$) | Window Index of Detection | Latency (ms) | Attack Frames Pre-Alert | Latency Assessment |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `0x100` | `0.000 s` | `[0.000 s]` | `Window [0]` | `[0 ms]` | `[ ] frames` | `[Immediate / Delayed]` |
+| `0x120` | `0.000 s` | `[0.000 s]` | `Window [0]` | `[0 ms]` | `[ ] frames` | `[Immediate / Delayed]` |
+| `0x200` | `0.000 s` | `[0.000 s]` | `Window [0]` | `[0 ms]` | `[ ] frames` | `[Immediate / Delayed]` |
+| `0x300` | `0.000 s` | `[0.000 s]` | `Window [0]` | `[0 ms]` | `[ ] frames` | `[Immediate / Delayed]` |
+| **System Mean** | — | — | — | **`[0 ms]`** | — | **`[Pass / Fail]`** |
+
+*Note:* If detection occurs in `Window 0` ($\le 1.0\text{ s}$ from injection onset), the latency is considered bounded by the window aggregation period ($1000\text{ ms}$).
+
+---
+
+## 6. Anomaly Score Distribution & Separation Margin
+
+Quantifies how decisively the model isolates high-rate traffic from nominal baseline distributions.
+
+### 6.1 Score Distribution Statistics
+
+| Traffic Class | Count ($N$) | Min Score | 25th Pct | Median Score | 75th Pct | Max Score | Mean ($\mu$) | Std ($\sigma$) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Nominal Traffic** | `[40]` | `[0.0000]` | `[0.0000]` | `[0.0000]` | `[0.0000]` | `[0.0000]` | `[+0.0000]` | `[0.0000]` |
+| **High-Rate / Attack** | `[40]` | `[-0.0000]` | `[-0.0000]` | `[-0.0000]` | `[-0.0000]` | `[-0.0000]` | `[-0.0000]` | `[0.0000]` |
+
+### 6.2 Score Separation Margin ($\Delta_s$)
+$$\Delta_s = \min(s_{\text{normal}}) - \max(s_{\text{attack}})$$
+
+* **Observed Separation Margin ($\Delta_s$):** `[0.0000]`
+* **Separation Status:**
+  * **Robust ($\Delta_s > 0.05$):** Clear boundary gap; zero threshold ambiguity.
+  * **Marginal ($0.00 \le \Delta_s \le 0.05$):** Separable at current zero threshold, but vulnerable to drift.
+  * **Overlapping ($\Delta_s < 0.00$):** Overlap exists; requires threshold tuning or retraining.
+
+---
+
+## 7. Granular Prediction Record Schema
+
+Predictions from the evaluation run should be logged into a machine-readable CSV artifact using this column layout:
+
+```csv
+source,window,can_id,message_count,avg_interval_ms,unique_payloads,payload_entropy,label,prediction,anomaly_score,detection_latency_ms
+```
+
+### 7.1 Field Definitions & Constraints
+
+| Column Name | Type | Valid Example | Description |
+| :--- | :--- | :--- | :--- |
+| `source` | String | `high_rate_eval_v1` | Name of the evaluated traffic source file. |
+| `window` | Integer | `0` | Temporal window index ($\lfloor t / 1.0 \rfloor$). |
+| `can_id` | Hex String | `0x100` | Arbitration ID monitored in this slice. |
+| `message_count` | Integer | `125` | Total frames received for this ID in the window. |
+| `avg_interval_ms` | Float | `7.991` | Average interval between consecutive frames (ms). |
+| `unique_payloads`| Integer | `125` | Number of distinct 8-byte payload strings. |
+| `payload_entropy`| Float | `6.9619` | Base-2 Shannon entropy of payload distribution. |
+| `label` | String | `high_rate` | Ground-truth class (`normal`, `high_rate`, `fuzzing`). |
+| `prediction` | Enum | `ANOMALY` | Model decision (`NORMAL` or `ANOMALY`). |
+| `anomaly_score` | Float | `-0.042213` | Isolation Forest signed decision score. |
+| `detection_latency_ms` | Float | `0.0` | Elapsed time from attack onset to this alert. |
+
+---
+
+## 8. Root Cause Analysis of Anomalies & Edge Cases
+
+Document any False Positives (legitimate traffic marked as anomaly) or False Negatives (attack traffic missed).
+
+### 8.1 False Positives (Type I Errors)
+* **Incident 1:** `Window [ ], CAN ID [ ]`  
+  * *Observed Features:* `count=[ ]`, `avg_interval=[ ] ms`, `entropy=[ ]`  
+  * *Root Cause Analysis:* (e.g., Low transmission count caused high interval outlier; burst transmission).
+  * *Remediation Recommendation:* (e.g., Adjust minimum message threshold before evaluating interval).
+
+### 8.2 False Negatives (Type II Errors)
+* **Incident 1:** `Window [ ], CAN ID [ ]`  
+  * *Observed Features:* `count=[ ]`, `avg_interval=[ ] ms`, `entropy=[ ]`  
+  * *Root Cause Analysis:* (e.g., Attack rate too close to nominal baseline; payload variability matched legitimate signaling).
+  * *Remediation Recommendation:* (e.g., Increase tree count; calibrate contamination factor).
+
+---
+
+## 9. Sign-off & Avinash / Zeeshan Action Tracker
+
+| Action Item | Owner | Target Completion | Status |
+| :--- | :--- | :--- | :--- |
+| **Feature Extraction Pipeline Validation** | Avinash | `YYYY-MM-DD` | `[Pending / Complete]` |
+| **Nominal Baseline Calibration (50 vs 25 msg/s)**| Avinash | `YYYY-MM-DD` | `[Pending / Complete]` |
+| **Additional Attack Vector Synthesis (DoS, Fuzzing)**| Zeeshan | `YYYY-MM-DD` | `[Pending / Complete]` |
+| **Final Test Suite Run & Sign-Off** | Security Lead | `YYYY-MM-DD` | `[Pending / Complete]` |
