@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAN-Sentinel Detector Dashboard</title>
+<style>
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #172033;
+}
+header {
+    background: #132238;
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+h1 { margin-top: 0; }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 18px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+th, td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+th { background: #e8eef6; }
+footer {
+    margin-top: 24px;
+    color: #64748b;
+    font-size: 13px;
+}
+</style>
+</head>
+<body>
+<header>
+    <h1>CAN-Sentinel Detector Dashboard</h1>
+    <p>ML, rate-based, and hybrid detector prediction summaries</p>
+    <p>Total integration records: <strong>60</strong></p>
+</header>
+
+<h2>Overall Detector Summaries</h2>
+<div class="grid">
+
+    <section class="card">
+      <h2>ML Detector</h2>
+      <p>Total records: <strong>60</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>58</td></tr></tbody>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h2>Rate-Based Detector</h2>
+      <p>Total records: <strong>60</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr></tbody>
+      </table>
+    </section>
+    
+
+    <section class="card">
+      <h2>Hybrid Detector</h2>
+      <p>Total records: <strong>60</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
+      </table>
+    </section>
+    
+</div>
+
+<h2>Traffic Dataset Results</h2>
+<section class='card'><h2>Normal Traffic</h2><p>Records: <strong>8</strong></p>
+    <section class="card">
+      <h2>ML Predictions</h2>
+      <p>Total records: <strong>8</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
+      </table>
+    </section>
+    
+    <section class="card">
+      <h2>Rate-Based Predictions</h2>
+      <p>Total records: <strong>8</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr></tbody>
+      </table>
+    </section>
+    
+    <section class="card">
+      <h2>Hybrid Predictions</h2>
+      <p>Total records: <strong>8</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
+      </table>
+    </section>
+    </section>
+<section class='card'><h2>High-Rate Traffic</h2><p>Records: <strong>52</strong></p>
+    <section class="card">
+      <h2>ML Predictions</h2>
+      <p>Total records: <strong>52</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>NORMAL</td><td>52</td></tr></tbody>
+      </table>
+    </section>
+    
+    <section class="card">
+      <h2>Rate-Based Predictions</h2>
+      <p>Total records: <strong>52</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr></tbody>
+      </table>
+    </section>
+    
+    <section class="card">
+      <h2>Hybrid Predictions</h2>
+      <p>Total records: <strong>52</strong></p>
+      <table>
+        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
+        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr></tbody>
+      </table>
+    </section>
+    </section>
+
+<footer>
+Generated from results/integration_results.csv by
+src/generate_dashboard_report.py.
+</footer>
+</body>
+</html>
