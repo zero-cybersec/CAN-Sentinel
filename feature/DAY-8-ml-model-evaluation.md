@@ -1,7 +1,7 @@
 # CAN-Sentinel: ML Model Evaluation Report
 
-**File:** `docs/ml_evaluation.md`  
-**Date:** 2026-10-25  
+**File:**  docs/ml_evaluation.md
+**Date:** 2026-10-23  
 **System:** CAN-Sentinel Automotive Intrusion Detection System (IDS)  
 **Evaluator:** ML Engineering & Evaluation Lead  
 **Artifacts Reviewed:**
