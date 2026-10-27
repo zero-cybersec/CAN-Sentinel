@@ -1,0 +1,3 @@
+Project: CAN-Sentinel
+Contributor: zero-cybersec
+Status: Initial repository setup
