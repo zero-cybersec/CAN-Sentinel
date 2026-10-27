@@ -68,3 +68,13 @@ These are results from the existing synthetic datasets, not independent real-wor
 ## 7. Conclusion
 
 The repository contains an existing pipeline connecting feature extraction, ML inference, rate-based detection, hybrid predictions and CSV output. The next integration stage is to validate the component boundaries and edge cases. The current synthetic results should not be treated as proof of production readiness.
+
+## 8. End-to-End Verification
+
+- End-to-end pipeline test: PASS.
+- Missing traffic input error-handling test: PASS.
+- Combined rule-baseline, detector-evaluation and end-to-end suite: 11 tests passed.
+- Tests used temporary input files and a fake model, so the checks did not require replacing the existing model or traffic datasets.
+- Code coverage was not measured because the optional `pytest-cov` dependency could not be installed in the current environment.
+
+These results verify the tested integration paths only; edge-case traffic validation remains pending.
