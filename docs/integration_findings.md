@@ -78,3 +78,11 @@ The repository contains an existing pipeline connecting feature extraction, ML i
 - Code coverage was not measured because the optional `pytest-cov` dependency could not be installed in the current environment.
 
 These results verify the tested integration paths only; edge-case traffic validation remains pending.
+
+## Additional Input Validation Test
+
+- Added `tests/test_extract_features.py`.
+- Tested input traffic CSV with a missing required `can_id` column.
+- The test passed, confirming the extraction script exits with an error for this malformed input.
+- Full test suite result: 12 passed.
+- Code coverage was not measured because the optional `pytest-cov` dependency could not be installed in the current environment.
