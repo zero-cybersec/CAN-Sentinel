@@ -57,3 +57,21 @@ model's failure to detect the tested high-rate traffic.
 - Normal traffic output: 6 windows were labelled `NORMAL` and 2 were labelled `ANOMALY` by the hybrid output.
 - The original ML predictions and anomaly scores remain available in the results CSV.
 - These are repeat-run verification results on the existing synthetic datasets, not independent validation or evidence of improved ML performance.
+
+## Latest Detector Evaluation — 28 October 2026
+
+### Evaluation Results
+
+| Detector | Windows | TP | FP | TN | FN | Precision | Recall | F1 | Accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ML | 52 | 48 | 0 | 4 | 0 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| Rate-based | 52 | 48 | 0 | 4 | 0 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| Hybrid | 52 | 48 | 0 | 4 | 0 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+
+### Interpretation and Limitations
+
+- All three detectors correctly classified the 48 high-rate and 4 normal evaluated windows in the current synthetic test.
+- Integration results are saved in `results/integration_results.csv`.
+- Evaluation metrics are saved in `results/detector_evaluation_metrics.csv`.
+- These results use synthetic datasets and filename-derived ground-truth labels. They do not establish real-world detection accuracy or independent generalization.
+- Further validation requires independent datasets containing varied normal traffic and attack scenarios.
