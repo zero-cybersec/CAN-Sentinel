@@ -1,0 +1,4 @@
+experiment,contamination,n_estimators,random_state,training_normal_rows,evaluated_samples,predicted_anomalies,anomaly_threshold,anomaly_score_min,anomaly_score_mean,anomaly_score_max,anomalies_high_rate_new,evaluated_high_rate_new,anomalies_normal_new,evaluated_normal_new,feature_source
+day13_ml_sensitivity,0.01,200,42,40,80,1,-0.740462,-0.045876,0.150865,0.354788,0,40,1,40,"results/experimental_ml_predictions.csv (committed, feature columns reconstructed)"
+day13_ml_sensitivity,0.05,200,42,40,80,42,-0.646774,-0.139565,0.057176,0.2611,40,40,2,40,"results/experimental_ml_predictions.csv (committed, feature columns reconstructed)"
+day13_ml_sensitivity,0.1,200,42,40,80,44,-0.554491,-0.231847,-0.035106,0.168817,40,40,4,40,"results/experimental_ml_predictions.csv (committed, feature columns reconstructed)"
