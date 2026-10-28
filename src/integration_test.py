@@ -44,7 +44,7 @@ def extract_features(csv_path):
 
         for start in range(0, len(messages), WINDOW_SIZE):
             window = messages[start:start + WINDOW_SIZE]
-            if len(window) < 10:
+            if len(window) < WINDOW_SIZE:
                 continue
 
             intervals = [
