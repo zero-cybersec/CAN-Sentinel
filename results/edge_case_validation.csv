@@ -1,4 +1,4 @@
-scenario,input_count,detector_output_count,expected_behavior,observed_result,status
-burst_traffic,100,NOT RUN,High-rate burst should be flagged as attack,Dataset checks PASS: 100 attack labels; 0.002-second intervals. Detector NOT RUN.,NOT RUN
-replay_pattern,100,NOT RUN,Repeated CAN ID and identical payload should be flagged as attack,Dataset checks PASS: one unique CAN ID/payload pair and 100 attack labels. Detector NOT RUN.,NOT RUN
-normal_to_high_rate,200,NOT RUN,"First 100 frames normal, next 100 frames attack",Dataset checks PASS: labels are ordered as 100 normal then 100 attack. Detector NOT RUN.,NOT RUN
+scenario,input_count,detector_output_count,baseline_output_count,expected_behavior,observed_result,status
+burst_traffic,100,NOT RUN,100,Flag high-rate burst frames as attack,Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS
+replay_pattern,100,NOT RUN,100,Flag repeated CAN ID/payload pattern as attack,1 unique CAN ID/payload pair(s); baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS
+normal_to_high_rate,200,NOT RUN,100,Flag high-rate frames after normal traffic,Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS

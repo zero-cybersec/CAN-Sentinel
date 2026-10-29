@@ -59,3 +59,31 @@ No claim of successful attack detection is made.
 - Original dataset unchanged: yes
 - Regenerated CSV byte-for-byte identical to original: yes
 - Method: ran the generator in a temporary working directory.
+
+
+## Day 12 baseline rule-test results
+
+The existing Day 11 CSV was tested without regenerating it.
+These are results from a simple validation baseline, NOT the
+project's production intrusion detector.
+
+### burst_traffic — PASS
+- Input rows: 100
+- Baseline flagged rows: 100
+- Production detector output: NOT RUN
+- Observation: Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.
+
+### replay_pattern — PASS
+- Input rows: 100
+- Baseline flagged rows: 100
+- Production detector output: NOT RUN
+- Observation: 1 unique CAN ID/payload pair(s); baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.
+
+### normal_to_high_rate — PASS
+- Input rows: 200
+- Baseline flagged rows: 100
+- Production detector output: NOT RUN
+- Observation: Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.
+
+### Limitation
+Baseline PASS means this simple rule reproduced the expected labels on this dataset only. It does not demonstrate production model accuracy, generalization, or real-vehicle detection.
