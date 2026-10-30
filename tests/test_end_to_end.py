@@ -51,16 +51,16 @@ def test_end_to_end_pipeline(tmp_path, monkeypatch):
 
     result = pd.read_csv(output_file)
 
-    assert len(result) == 2
+    assert set(result["source_file"]) == {"normal_traffic.csv", "high_rate_traffic.csv"}
     assert {
-        "source_file", "can_id", "prediction",
+        "source_file", "prediction",
         "ml_prediction", "rate_based_prediction", "anomaly_score"
     }.issubset(result.columns)
 
     normal = result[result["source_file"] == "normal_traffic.csv"]
     high_rate = result[result["source_file"] == "high_rate_traffic.csv"]
 
-    assert len(normal) == 1
+    assert len(normal) == 20
     assert len(high_rate) == 1
     assert normal.iloc[0]["prediction"] == "NORMAL"
     assert high_rate.iloc[0]["prediction"] == "HIGH_RATE_SUSPECTED"

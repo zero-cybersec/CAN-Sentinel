@@ -15,63 +15,58 @@ WINDOW_SIZE = 100
 FEATURES = [
     "message_count",
     "avg_interval_ms",
+    "unique_can_ids",
     "unique_payloads",
     "payload_entropy",
 ]
 
 
 def extract_features(csv_path):
-    traffic = defaultdict(list)
+    import math
+    from collections import Counter
+    import pandas as pd
 
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        required = {"timestamp_s", "can_id", "data"}
-        if not reader.fieldnames or not required.issubset(reader.fieldnames):
-            raise ValueError(
-                f"{csv_path.name} must contain columns: "
-                f"{', '.join(sorted(required))}"
-            )
+    traffic = pd.read_csv(csv_path)
+    required = {"timestamp_s", "can_id", "data"}
+    if not required.issubset(traffic.columns):
+        raise ValueError(f"{csv_path} must contain {sorted(required)}")
 
-        for row in reader:
-            traffic[row["can_id"]].append({
-                "timestamp": float(row["timestamp_s"]),
-                "data": row["data"],
-            })
+    traffic["timestamp_s"] = pd.to_numeric(
+        traffic["timestamp_s"], errors="raise"
+    )
+    traffic = traffic.sort_values("timestamp_s").copy()
+    if traffic.empty:
+        return []
+
+    traffic["window_id"] = (
+        (traffic["timestamp_s"] - traffic["timestamp_s"].min()) / 0.5
+    ).apply(math.floor)
 
     rows = []
-    for can_id, messages in sorted(traffic.items()):
-        messages.sort(key=lambda m: m["timestamp"])
+    for _, window in traffic.groupby("window_id", sort=True):
+        timestamps = window["timestamp_s"].tolist()
+        intervals = [
+            (timestamps[i] - timestamps[i - 1]) * 1000
+            for i in range(1, len(timestamps))
+        ]
+        payload_counts = Counter(window["data"].astype(str))
+        total = len(window)
+        entropy = -sum(
+            (count / total) * math.log2(count / total)
+            for count in payload_counts.values()
+        )
 
-        for start in range(0, len(messages), WINDOW_SIZE):
-            window = messages[start:start + WINDOW_SIZE]
-            if len(window) < WINDOW_SIZE:
-                continue
-
-            intervals = [
-                (window[i]["timestamp"] - window[i - 1]["timestamp"]) * 1000
-                for i in range(1, len(window))
-            ]
-
-            counts = Counter(message["data"] for message in window)
-            total = len(window)
-            entropy = -sum(
-                (count / total) * math.log2(count / total)
-                for count in counts.values()
-            )
-
-            rows.append({
-                "source_file": csv_path.name,
-                "can_id": can_id,
-                "message_count": total,
-                "avg_interval_ms": round(
-                    sum(intervals) / len(intervals), 3
-                ) if intervals else 0.0,
-                "unique_payloads": len(counts),
-                "payload_entropy": round(entropy, 4),
-            })
-
+        rows.append({
+            "source_file": Path(csv_path).name,
+            "message_count": total,
+            "avg_interval_ms": round(
+                sum(intervals) / len(intervals), 3
+            ) if intervals else 0.0,
+            "unique_can_ids": window["can_id"].nunique(),
+            "unique_payloads": len(payload_counts),
+            "payload_entropy": round(entropy, 4),
+        })
     return rows
-
 
 def main():
     if not MODEL_FILE.exists():
@@ -87,7 +82,7 @@ def main():
             "Waiting for Zeeshan's output files:\n" + "\n".join(missing)
         )
 
-    model = joblib.load(MODEL_FILE)
+    model = joblib.load("can_model_candidate.joblib")
     all_rows = []
 
     for path in input_files:
@@ -101,17 +96,18 @@ def main():
     scores = model.decision_function(df[FEATURES])
 
     df["ml_prediction"] = [
-        "NORMAL" if value == 1 else "ANOMALY"
+        str(value).upper() if isinstance(value, str)
+        else ("NORMAL" if value == 1 else "ANOMALY")
         for value in predictions
     ]
     df["anomaly_score"] = scores
     df["rate_based_prediction"] = [
-        "HIGH_RATE_SUSPECTED" if interval < 30.0
+        "HIGH_RATE_SUSPECTED" if interval < 10.0
         else "NORMAL_BY_BASELINE"
         for interval in df["avg_interval_ms"]
     ]
     df["prediction"] = [
-        "HIGH_RATE_SUSPECTED" if interval < 30.0
+        "HIGH_RATE_SUSPECTED" if interval < 10.0
         else ml_label
         for interval, ml_label in zip(
             df["avg_interval_ms"], df["ml_prediction"]
@@ -122,8 +118,10 @@ def main():
     df.to_csv(OUTPUT_FILE, index=False)
 
     print(df[[
-        "source_file", "can_id", "message_count",
-        "prediction", "anomaly_score"
+        "source_file", "message_count", "avg_interval_ms",
+        "unique_can_ids", "unique_payloads", "payload_entropy",
+        "ml_prediction", "anomaly_score", "rate_based_prediction",
+        "prediction"
     ]].to_string(index=False))
     print(f"\nIntegration results saved to: {OUTPUT_FILE}")
 

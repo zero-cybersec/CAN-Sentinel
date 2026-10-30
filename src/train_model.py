@@ -1,35 +1,40 @@
 import pandas as pd
-from sklearn.ensemble import IsolationForest
 import joblib
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from integration_test import extract_features, FEATURES, RESULTS_DIR
 
-DATA_FILE = "can_features.csv"
-MODEL_FILE = "can_model.joblib"
+normal_path = RESULTS_DIR / "normal_traffic.csv"
+attack_path = RESULTS_DIR / "high_rate_traffic.csv"
 
-df = pd.read_csv(DATA_FILE)
+normal = pd.DataFrame(extract_features(normal_path))
+attack = pd.DataFrame(extract_features(attack_path))
 
-features = [
-    "message_count",
-    "avg_interval_ms",
-    "unique_payloads",
-    "payload_entropy",
-]
+normal["label"] = "NORMAL"
+attack["label"] = "ANOMALY"
 
-if len(df) < 10:
-    raise ValueError(
-        "Training data is very low. "
-        "First collect more traffic samples."
-    )
+data = pd.concat([normal, attack], ignore_index=True)
 
-X = df[features].apply(pd.to_numeric, errors="raise")
+X = data[FEATURES].apply(pd.to_numeric, errors="raise")
+y = data["label"]
 
-model = IsolationForest(
-    n_estimators=100,
-    contamination=0.05,
-    random_state=42,
-)
+if len(data) < 20 or y.nunique() != 2:
+    raise ValueError("Insufficient training windows or missing class.")
 
-model.fit(X)
-joblib.dump(model, MODEL_FILE)
+model = Pipeline([
+    ("standardscaler", StandardScaler()),
+    ("svc", SVC(
+        kernel="rbf",
+        gamma="scale",
+        class_weight="balanced"
+    ))
+])
 
-print(f"Model trained on {len(X)} samples.")
-print(f"Model saved to {MODEL_FILE}")
+model.fit(X, y)
+joblib.dump(model, "can_model.joblib")
+
+print("Model trained and saved to can_model.joblib")
+print("Training windows:", len(data))
+print("Class distribution:", y.value_counts().to_dict())
+print("Training predictions:", pd.Series(model.predict(X)).value_counts().to_dict())

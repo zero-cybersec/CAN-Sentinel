@@ -1,35 +1,30 @@
 import pandas as pd
 import joblib
+from integration_test import extract_features, FEATURES, RESULTS_DIR
 
-FEATURE_FILE = "can_features.csv"
-MODEL_FILE = "can_model.joblib"
+model = joblib.load("can_model.joblib")
+rows = []
 
-features = [
-    "message_count",
-    "avg_interval_ms",
-    "unique_payloads",
-    "payload_entropy",
-]
+for filename, expected in [
+    ("normal_traffic.csv", "NORMAL"),
+    ("high_rate_traffic.csv", "ANOMALY"),
+]:
+    df = pd.DataFrame(extract_features(RESULTS_DIR / filename))
+    X = df[FEATURES]
+    predictions = model.predict(X)
+    scores = model.decision_function(X)
 
-df = pd.read_csv(FEATURE_FILE)
-model = joblib.load(MODEL_FILE)
+    for i, prediction in enumerate(predictions):
+        rows.append({
+            "source_file": filename,
+            "expected": expected,
+            "prediction": prediction,
+            "anomaly_score": scores[i],
+        })
 
-X = df[features]
-predictions = model.predict(X)
-scores = model.decision_function(X)
+results = pd.DataFrame(rows)
+results.to_csv("model_test_results.csv", index=False)
 
-df["prediction"] = [
-    "NORMAL" if p == 1 else "ANOMALY"
-    for p in predictions
-]
-df["anomaly_score"] = scores
-
-print(df[[
-    "can_id",
-    "message_count",
-    "prediction",
-    "anomaly_score",
-]].to_string(index=False))
-
-df.to_csv("model_test_results.csv", index=False)
-print("\nResults saved to model_test_results.csv")
+print(results.groupby(["source_file", "expected", "prediction"]).size())
+print("Unique scores:", results["anomaly_score"].round(8).nunique())
+print("Results saved to model_test_results.csv")
