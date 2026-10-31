@@ -1,0 +1,37 @@
+Day 14 - Attack Scenario Validation
+Author: Zeeshan
+
+1. Simulator Inspection
+attack_simulator.py was not found in src.
+The Day 13 generator was inspected.
+
+2. Traffic Interval Comparison
+Normal traffic: 500 messages, average interval 20 ms.
+High-rate traffic: 5000 messages, average interval 2 ms.
+High-rate interval is 10 times shorter.
+
+3. CAN ID Validation
+Normal traffic: 4 unique CAN IDs.
+High-rate traffic: 4 unique CAN IDs.
+Day 13 mixed traffic: 5 unique CAN IDs.
+
+4. Mixed Scenario Validation
+Normal: 40 messages.
+Burst: 40 messages.
+Replay: 40 messages.
+Recovery: 40 messages.
+Total: 160 messages.
+
+5. Reproducibility
+Fixed seed: 13.
+Deterministic generation design: Confirmed.
+Repeated-run comparison: Not performed.
+
+6. Observations
+Normal traffic interval: 20 ms.
+Burst traffic interval: 2 ms.
+Replay traffic interval: 10 ms.
+Recovery traffic interval: 20 ms.
+The generator validates timestamps and replay payloads.
+Existing deliverables are protected from overwriting.
+Results validate dataset structure, not ML detector accuracy.
