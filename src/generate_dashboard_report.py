@@ -1,14 +1,18 @@
-
-"""Generate an HTML dashboard from CAN-Sentinel integration results."""
+"""Generate the CAN-Sentinel HTML dashboard from existing CSV results."""
 
 import csv
 import html
 import sys
-from collections import Counter
 from pathlib import Path
+from collections import Counter
+from datetime import datetime
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 INPUT_FILE = PROJECT_ROOT / "results" / "integration_results.csv"
+METRICS_FILE = PROJECT_ROOT / "results" / "detector_evaluation_metrics.csv"
+EDGE_CASE_FILE = PROJECT_ROOT / "results" / "edge_case_validation.csv"
+
 OUTPUT_FILE = PROJECT_ROOT / "reports" / "detector_dashboard.html"
 
 REQUIRED_COLUMNS = {
@@ -22,36 +26,136 @@ REQUIRED_COLUMNS = {
 
 
 def escape(value):
-    """Escape values before inserting them into HTML."""
+    """Safely convert values into HTML text."""
     return html.escape(str(value))
 
 
+def read_csv(file_path):
+    """Read a CSV file and return its headers and rows."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input CSV not found: {file_path}")
+
+    with file_path.open("r", newline="", encoding="utf-8-sig") as file:
+        reader = csv.DictReader(file)
+
+        if not reader.fieldnames:
+            raise ValueError(f"CSV has no header: {file_path.name}")
+
+        rows = list(reader)
+
+    return reader.fieldnames, rows
+
+
 def prediction_summary(rows, column, detector_name):
-    """Create a summary table showing prediction counts."""
+    """Generate prediction counts for one detector."""
     counts = Counter(
         str(row.get(column, "")).strip() or "Unknown"
         for row in rows
     )
 
-    table_rows = "".join(
-        f"<tr><td>{escape(label)}</td><td>{count}</td></tr>"
-        for label, count in sorted(counts.items())
-    )
+    table_rows = ""
+
+    for label, count in sorted(counts.items()):
+        table_rows += (
+            f"<tr><td>{escape(label)}</td>"
+            f"<td>{count}</td></tr>"
+        )
 
     return f"""
     <section class="card">
-      <h2>{escape(detector_name)}</h2>
-      <p>Total records: <strong>{len(rows)}</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody>{table_rows}</tbody>
-      </table>
+        <h2>{escape(detector_name)}</h2>
+        <p>Total records: <strong>{len(rows)}</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            {table_rows}
+        </table>
     </section>
     """
 
 
+def metrics_table(rows):
+    """Display available detector evaluation metrics."""
+    if not rows:
+        return "<p>Evaluation metrics unavailable.</p>"
+
+    columns = [
+        "detector",
+        "evaluated_windows",
+        "TP",
+        "FP",
+        "TN",
+        "FN",
+        "precision",
+        "recall",
+        "f1_score",
+        "accuracy",
+    ]
+
+    available = [col for col in columns if col in rows[0]]
+
+    if not available:
+        return "<p>Required metric columns unavailable.</p>"
+
+    header = "".join(f"<th>{escape(col)}</th>" for col in available)
+
+    body = ""
+
+    for row in rows:
+        cells = "".join(
+            f"<td>{escape(row.get(col, 'Unavailable'))}</td>"
+            for col in available
+        )
+        body += f"<tr>{cells}</tr>"
+
+    return f"""
+    <table>
+        <tr>{header}</tr>
+        {body}
+    </table>
+    """
+
+
+def edge_case_table(rows):
+    """Display available edge-case validation results."""
+    if not rows:
+        return "<p>Edge-case results unavailable.</p>"
+
+    columns = [
+        "scenario",
+        "input_count",
+        "detector_output_count",
+        "baseline_output_count",
+        "expected_behavior",
+        "observed_result",
+        "status",
+    ]
+
+    available = [col for col in columns if col in rows[0]]
+
+    if not available:
+        return "<p>Edge-case columns unavailable.</p>"
+
+    header = "".join(f"<th>{escape(col)}</th>" for col in available)
+
+    body = ""
+
+    for row in rows:
+        cells = "".join(
+            f"<td>{escape(row.get(col, 'Unavailable'))}</td>"
+            for col in available
+        )
+        body += f"<tr>{cells}</tr>"
+
+    return f"""
+    <table>
+        <tr>{header}</tr>
+        {body}
+    </table>
+    """
+
+
 def traffic_summary(rows):
-    """Group results into normal, high-rate, and other traffic."""
+    """Separate normal and high-rate traffic using source filenames."""
     groups = {
         "Normal Traffic": [],
         "High-Rate Traffic": [],
@@ -68,34 +172,37 @@ def traffic_summary(rows):
         else:
             groups["Other Traffic"].append(row)
 
-    sections = []
+    result = ""
 
-    for label, group_rows in groups.items():
-        if not group_rows:
-            continue
+    for name, group in groups.items():
+        if group:
+            result += f"""
+            <section class="card">
+                <h2>{escape(name)}</h2>
+                <p>Records: {len(group)}</p>
+                {prediction_summary(group, "ml_prediction", "ML Detector")}
+                {prediction_summary(group, "rate_based_prediction", "Rate-Based Detector")}
+                {prediction_summary(group, "prediction", "Hybrid Detector")}
+            </section>
+            """
 
-        sections.append(
-            f"<section class='card'><h2>{escape(label)}</h2>"
-            f"<p>Records: <strong>{len(group_rows)}</strong></p>"
-            f"{prediction_summary(group_rows, 'ml_prediction', 'ML Predictions')}"
-            f"{prediction_summary(group_rows, 'rate_based_prediction', 'Rate-Based Predictions')}"
-            f"{prediction_summary(group_rows, 'prediction', 'Hybrid Predictions')}"
-            "</section>"
-        )
-
-    return "\n".join(sections)
+    return result
 
 
-def build_html(rows):
-    """Build the complete dashboard HTML."""
-    total_records = len(rows)
+def build_html(rows, metrics_rows=None, edge_rows=None):
+    """Build the complete dashboard page."""
+    metrics_rows = metrics_rows or []
+    edge_rows = edge_rows or []
+
+    generated_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAN-Sentinel Detector Dashboard</title>
+<title>CAN-Sentinel Dashboard</title>
+
 <style>
 body {{
     margin: 0;
@@ -111,7 +218,6 @@ header {{
     border-radius: 12px;
     margin-bottom: 24px;
 }}
-h1 {{ margin-top: 0; }}
 .grid {{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -123,6 +229,7 @@ h1 {{ margin-top: 0; }}
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     margin-bottom: 18px;
+    overflow-x: auto;
 }}
 table {{
     width: 100%;
@@ -134,7 +241,14 @@ th, td {{
     padding: 10px;
     border-bottom: 1px solid #e2e8f0;
 }}
-th {{ background: #e8eef6; }}
+th {{
+    background: #e8eef6;
+}}
+.notice {{
+    background: #fff4d6;
+    padding: 14px;
+    border-radius: 8px;
+}}
 footer {{
     margin-top: 24px;
     color: #64748b;
@@ -142,81 +256,106 @@ footer {{
 }}
 </style>
 </head>
+
 <body>
+
 <header>
     <h1>CAN-Sentinel Detector Dashboard</h1>
-    <p>ML, rate-based, and hybrid detector prediction summaries</p>
-    <p>Total integration records: <strong>{total_records}</strong></p>
+    <p>Vehicle CAN Network Intrusion Detection System</p>
+    <p>Input dataset: results/integration_results.csv</p>
+    <p>Model file: can_model.joblib (model execution not performed by this report)</p>
+    <p>Rate-based threshold: Unavailable in current report input</p>
+    <p>Generated at: {escape(generated_time)}</p>
+    <p>Total integration records: <strong>{len(rows)}</strong></p>
 </header>
 
-<h2>Overall Detector Summaries</h2>
-<div class="grid">
-{prediction_summary(rows, 'ml_prediction', 'ML Detector')}
-{prediction_summary(rows, 'rate_based_prediction', 'Rate-Based Detector')}
-{prediction_summary(rows, 'prediction', 'Hybrid Detector')}
+<div class="notice">
+    <strong>Limitation:</strong>
+    Results are based on the available CSV files.
+    Synthetic or previously generated data should not be treated
+    as proof of real-world production performance.
 </div>
 
-<h2>Traffic Dataset Results</h2>
+<h2>Overall Detector Summaries</h2>
+
+<div class="grid">
+    {prediction_summary(rows, "ml_prediction", "ML Detector")}
+    {prediction_summary(rows, "rate_based_prediction", "Rate-Based Detector")}
+    {prediction_summary(rows, "prediction", "Hybrid Detector")}
+</div>
+
+<h2>Normal and High-Rate Traffic Results</h2>
+
 {traffic_summary(rows)}
 
+<h2>Detector Evaluation Metrics</h2>
+
+<div class="card">
+    {metrics_table(metrics_rows)}
+</div>
+
+<h2>Edge-Case Validation Results</h2>
+
+<div class="card">
+    {edge_case_table(edge_rows)}
+</div>
+
 <footer>
-Generated from results/integration_results.csv by
-src/generate_dashboard_report.py.
+    Generated by src/generate_dashboard_report.py
 </footer>
+
 </body>
 </html>
 """
 
 
 def main():
-    """Validate the input and generate the dashboard report."""
-    if not INPUT_FILE.exists():
-        print(f"ERROR: Input CSV not found: {INPUT_FILE}")
-        return 1
-
+    """Validate CSV inputs and generate the HTML dashboard."""
     try:
-        with INPUT_FILE.open("r", newline="", encoding="utf-8-sig") as csv_file:
-            reader = csv.DictReader(csv_file)
+        headers, rows = read_csv(INPUT_FILE)
 
-            if not reader.fieldnames:
-                print("ERROR: The input CSV is empty or has no header row.")
-                return 1
+        missing = REQUIRED_COLUMNS - set(headers)
 
-            missing_columns = REQUIRED_COLUMNS - set(reader.fieldnames)
+        if missing:
+            print(
+                "ERROR: Missing required columns: "
+                + ", ".join(sorted(missing))
+            )
+            return 1
 
-            if missing_columns:
-                print(
-                    "ERROR: Missing required CSV columns: "
-                    + ", ".join(sorted(missing_columns))
-                )
-                return 1
+        if not rows:
+            print("ERROR: Integration CSV contains no data rows.")
+            return 1
 
-            rows = list(reader)
+        metrics_rows = []
+        edge_rows = []
 
-    except (OSError, UnicodeError, csv.Error) as error:
-        print(f"ERROR: Could not read input CSV: {error}")
-        return 1
+        if METRICS_FILE.exists():
+            _, metrics_rows = read_csv(METRICS_FILE)
 
-    if not rows:
-        print("ERROR: The input CSV contains a header but no data rows.")
-        return 1
+        if EDGE_CASE_FILE.exists():
+            _, edge_rows = read_csv(EDGE_CASE_FILE)
 
-    # Avoid silently replacing an existing report.
-    if OUTPUT_FILE.exists() and "--force" not in sys.argv:
-        print(f"ERROR: Report already exists: {OUTPUT_FILE}")
-        print("To replace it intentionally, run again with the --force option.")
-        return 1
+        if OUTPUT_FILE.exists() and "--force" not in sys.argv:
+            print(f"ERROR: Report already exists: {OUTPUT_FILE}")
+            print("Use --force to intentionally update the report.")
+            return 1
 
-    try:
         OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_FILE.write_text(build_html(rows), encoding="utf-8")
-    except OSError as error:
-        print(f"ERROR: Could not write dashboard report: {error}")
-        return 1
 
-    print(f"Dashboard generated successfully: {OUTPUT_FILE}")
-    print(f"Records processed: {len(rows)}")
-    return 0
+        page = build_html(rows, metrics_rows, edge_rows)
+        OUTPUT_FILE.write_text(page, encoding="utf-8")
+
+        print(f"Dashboard updated successfully: {OUTPUT_FILE}")
+        print(f"Integration records: {len(rows)}")
+        print(f"Metrics records: {len(metrics_rows)}")
+        print(f"Edge-case scenarios: {len(edge_rows)}")
+
+        return 0
+
+    except (OSError, UnicodeError, csv.Error, ValueError) as error:
+        print(f"ERROR: {error}")
+        return 1
 
 
 if __name__ == "__main__":

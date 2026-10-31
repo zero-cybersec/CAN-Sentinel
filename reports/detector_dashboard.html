@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAN-Sentinel Detector Dashboard</title>
+<title>CAN-Sentinel Dashboard</title>
+
 <style>
 body {
     margin: 0;
@@ -19,7 +20,6 @@ header {
     border-radius: 12px;
     margin-bottom: 24px;
 }
-h1 { margin-top: 0; }
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -31,6 +31,7 @@ h1 { margin-top: 0; }
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     margin-bottom: 18px;
+    overflow-x: auto;
 }
 table {
     width: 100%;
@@ -42,7 +43,14 @@ th, td {
     padding: 10px;
     border-bottom: 1px solid #e2e8f0;
 }
-th { background: #e8eef6; }
+th {
+    background: #e8eef6;
+}
+.notice {
+    background: #fff4d6;
+    padding: 14px;
+    border-radius: 8px;
+}
 footer {
     margin-top: 24px;
     color: #64748b;
@@ -50,108 +58,160 @@ footer {
 }
 </style>
 </head>
+
 <body>
+
 <header>
     <h1>CAN-Sentinel Detector Dashboard</h1>
-    <p>ML, rate-based, and hybrid detector prediction summaries</p>
+    <p>Vehicle CAN Network Intrusion Detection System</p>
+    <p>Input dataset: results/integration_results.csv</p>
+    <p>Model file: can_model.joblib (model execution not performed by this report)</p>
+    <p>Rate-based threshold: Unavailable in current report input</p>
+    <p>Generated at: 2026-10-31 21:13:18</p>
     <p>Total integration records: <strong>60</strong></p>
 </header>
 
+<div class="notice">
+    <strong>Limitation:</strong>
+    Results are based on the available CSV files.
+    Synthetic or previously generated data should not be treated
+    as proof of real-world production performance.
+</div>
+
 <h2>Overall Detector Summaries</h2>
+
 <div class="grid">
-
+    
     <section class="card">
-      <h2>ML Detector</h2>
-      <p>Total records: <strong>60</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>58</td></tr></tbody>
-      </table>
+        <h2>ML Detector</h2>
+        <p>Total records: <strong>60</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>58</td></tr>
+        </table>
     </section>
     
-
+    
     <section class="card">
-      <h2>Rate-Based Detector</h2>
-      <p>Total records: <strong>60</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr></tbody>
-      </table>
+        <h2>Rate-Based Detector</h2>
+        <p>Total records: <strong>60</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr>
+        </table>
     </section>
     
-
+    
     <section class="card">
-      <h2>Hybrid Detector</h2>
-      <p>Total records: <strong>60</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
-      </table>
+        <h2>Hybrid Detector</h2>
+        <p>Total records: <strong>60</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>ANOMALY</td><td>2</td></tr><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr><tr><td>NORMAL</td><td>6</td></tr>
+        </table>
     </section>
     
 </div>
 
-<h2>Traffic Dataset Results</h2>
-<section class='card'><h2>Normal Traffic</h2><p>Records: <strong>8</strong></p>
+<h2>Normal and High-Rate Traffic Results</h2>
+
+
+            <section class="card">
+                <h2>Normal Traffic</h2>
+                <p>Records: 8</p>
+                
     <section class="card">
-      <h2>ML Predictions</h2>
-      <p>Total records: <strong>8</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
-      </table>
+        <h2>ML Detector</h2>
+        <p>Total records: <strong>8</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr>
+        </table>
     </section>
     
+                
     <section class="card">
-      <h2>Rate-Based Predictions</h2>
-      <p>Total records: <strong>8</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr></tbody>
-      </table>
+        <h2>Rate-Based Detector</h2>
+        <p>Total records: <strong>8</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>NORMAL_BY_BASELINE</td><td>8</td></tr>
+        </table>
     </section>
     
+                
     <section class="card">
-      <h2>Hybrid Predictions</h2>
-      <p>Total records: <strong>8</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr></tbody>
-      </table>
-    </section>
-    </section>
-<section class='card'><h2>High-Rate Traffic</h2><p>Records: <strong>52</strong></p>
-    <section class="card">
-      <h2>ML Predictions</h2>
-      <p>Total records: <strong>52</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>NORMAL</td><td>52</td></tr></tbody>
-      </table>
+        <h2>Hybrid Detector</h2>
+        <p>Total records: <strong>8</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>ANOMALY</td><td>2</td></tr><tr><td>NORMAL</td><td>6</td></tr>
+        </table>
     </section>
     
+            </section>
+            
+            <section class="card">
+                <h2>High-Rate Traffic</h2>
+                <p>Records: 52</p>
+                
     <section class="card">
-      <h2>Rate-Based Predictions</h2>
-      <p>Total records: <strong>52</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr></tbody>
-      </table>
+        <h2>ML Detector</h2>
+        <p>Total records: <strong>52</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>NORMAL</td><td>52</td></tr>
+        </table>
     </section>
     
+                
     <section class="card">
-      <h2>Hybrid Predictions</h2>
-      <p>Total records: <strong>52</strong></p>
-      <table>
-        <thead><tr><th>Prediction</th><th>Count</th></tr></thead>
-        <tbody><tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr></tbody>
-      </table>
+        <h2>Rate-Based Detector</h2>
+        <p>Total records: <strong>52</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr>
+        </table>
     </section>
+    
+                
+    <section class="card">
+        <h2>Hybrid Detector</h2>
+        <p>Total records: <strong>52</strong></p>
+        <table>
+            <tr><th>Prediction</th><th>Count</th></tr>
+            <tr><td>HIGH_RATE_SUSPECTED</td><td>52</td></tr>
+        </table>
     </section>
+    
+            </section>
+            
+
+<h2>Detector Evaluation Metrics</h2>
+
+<div class="card">
+    
+    <table>
+        <tr><th>detector</th><th>evaluated_windows</th><th>TP</th><th>FP</th><th>TN</th><th>FN</th><th>precision</th><th>recall</th><th>f1_score</th><th>accuracy</th></tr>
+        <tr><td>ML</td><td>60</td><td>0</td><td>2</td><td>6</td><td>52</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.1</td></tr><tr><td>Rate-based</td><td>60</td><td>52</td><td>0</td><td>8</td><td>0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr><tr><td>Hybrid</td><td>60</td><td>52</td><td>2</td><td>6</td><td>0</td><td>0.963</td><td>1.0</td><td>0.9811</td><td>0.9667</td></tr>
+    </table>
+    
+</div>
+
+<h2>Edge-Case Validation Results</h2>
+
+<div class="card">
+    
+    <table>
+        <tr><th>scenario</th><th>input_count</th><th>detector_output_count</th><th>baseline_output_count</th><th>expected_behavior</th><th>observed_result</th><th>status</th></tr>
+        <tr><td>burst_traffic</td><td>100</td><td>NOT RUN</td><td>100</td><td>Flag high-rate burst frames as attack</td><td>Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.</td><td>PASS</td></tr><tr><td>replay_pattern</td><td>100</td><td>NOT RUN</td><td>100</td><td>Flag repeated CAN ID/payload pattern as attack</td><td>1 unique CAN ID/payload pair(s); baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.</td><td>PASS</td></tr><tr><td>normal_to_high_rate</td><td>200</td><td>NOT RUN</td><td>100</td><td>Flag high-rate frames after normal traffic</td><td>Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.</td><td>PASS</td></tr>
+    </table>
+    
+</div>
 
 <footer>
-Generated from results/integration_results.csv by
-src/generate_dashboard_report.py.
+    Generated by src/generate_dashboard_report.py
 </footer>
+
 </body>
 </html>

@@ -1,0 +1,4 @@
+scenario,input_count,detector_output_count,baseline_output_count,expected_behavior,observed_result,status
+burst_traffic,100,NOT RUN,100,Flag high-rate burst frames as attack,Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS
+replay_pattern,100,NOT RUN,100,Flag repeated CAN ID/payload pattern as attack,1 unique CAN ID/payload pair(s); baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS
+normal_to_high_rate,200,NOT RUN,100,Flag high-rate frames after normal traffic,Baseline flagged 100 frames; labels matched: True. Production detector NOT RUN.,PASS
