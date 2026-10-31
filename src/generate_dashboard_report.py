@@ -189,10 +189,17 @@ def traffic_summary(rows):
     return result
 
 
-def build_html(rows, metrics_rows=None, edge_rows=None):
+def build_html(rows, metrics_rows=None, edge_rows=None, metadata=None):
     """Build the complete dashboard page."""
     metrics_rows = metrics_rows or []
     edge_rows = edge_rows or []
+    metadata = metadata or {}
+
+    input_dataset = metadata.get("input_dataset", "Not available")
+    model_file = metadata.get("model_file", "Not available")
+    rate_threshold = metadata.get("rate_threshold", "Not available")
+    sample_count = metadata.get("sample_count", len(rows))
+    run_timestamp = metadata.get("run_timestamp", "Not available")
 
     generated_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -262,11 +269,11 @@ footer {{
 <header>
     <h1>CAN-Sentinel Detector Dashboard</h1>
     <p>Vehicle CAN Network Intrusion Detection System</p>
-    <p>Input dataset: results/integration_results.csv</p>
-    <p>Model file: can_model.joblib (model execution not performed by this report)</p>
-    <p>Rate-based threshold: Unavailable in current report input</p>
-    <p>Generated at: {escape(generated_time)}</p>
-    <p>Total integration records: <strong>{len(rows)}</strong></p>
+    <p>Input dataset: {escape(str(input_dataset))}</p>
+<p>Model file: {escape(str(model_file))}</p>
+<p>Rate-based threshold: {escape(str(rate_threshold))}</p>
+<p>Run timestamp: {escape(str(run_timestamp))}</p>
+<p>Sample count: <strong>{escape(str(sample_count))}</strong></p>
 </header>
 
 <div class="notice">
@@ -343,7 +350,15 @@ def main():
 
         OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-        page = build_html(rows, metrics_rows, edge_rows)
+        metadata = {
+    "input_dataset": str(INPUT_FILE.relative_to(PROJECT_ROOT)),
+    "model_file": "Not available",
+    "rate_threshold": "Not available",
+    "run_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "sample_count": len(rows)
+}
+
+        page = build_html(rows, metrics_rows, edge_rows, metadata)
         OUTPUT_FILE.write_text(page, encoding="utf-8")
 
         print(f"Dashboard updated successfully: {OUTPUT_FILE}")
