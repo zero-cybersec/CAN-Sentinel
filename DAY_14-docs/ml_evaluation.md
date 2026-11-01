@@ -194,5 +194,3 @@ Avinash, model ko production/experimental prototype standard par lane ke liye ye
    - CAN Buddy application aur Linux `vcan0` (SocketCAN) par live injection run karke latency aur memory footprint evaluate karein taaki embedded ECU constraints par real-time inference validate ho sake.
 
 ---
-
-*Report generated and validated for CAN-Sentinel ML Evaluation Milestone.*
