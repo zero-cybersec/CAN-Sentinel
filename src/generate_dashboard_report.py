@@ -1,10 +1,11 @@
+
 """Generate the CAN-Sentinel HTML dashboard from existing CSV results."""
 
 import csv
 import html
 import sys
 from pathlib import Path
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -12,6 +13,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INPUT_FILE = PROJECT_ROOT / "results" / "integration_results.csv"
 METRICS_FILE = PROJECT_ROOT / "results" / "detector_evaluation_metrics.csv"
 EDGE_CASE_FILE = PROJECT_ROOT / "results" / "edge_case_validation.csv"
+
+# Optional experimental ML predictions from Nikhil's branch.
+EXPERIMENTAL_ML_FILE = (
+    PROJECT_ROOT / "results" / "experimental_ml_predictions.csv"
+)
 
 OUTPUT_FILE = PROJECT_ROOT / "reports" / "detector_dashboard.html"
 
@@ -22,6 +28,17 @@ REQUIRED_COLUMNS = {
     "ml_prediction",
     "rate_based_prediction",
     "prediction",
+}
+
+EXPERIMENTAL_REQUIRED_COLUMNS = {
+    "source",
+    "window",
+    "can_id",
+    "message_count",
+    "label",
+    "prediction",
+    "anomaly_score",
+    "reference_prediction",
 }
 
 
@@ -97,7 +114,6 @@ def metrics_table(rows):
         return "<p>Required metric columns unavailable.</p>"
 
     header = "".join(f"<th>{escape(col)}</th>" for col in available)
-
     body = ""
 
     for row in rows:
@@ -136,7 +152,6 @@ def edge_case_table(rows):
         return "<p>Edge-case columns unavailable.</p>"
 
     header = "".join(f"<th>{escape(col)}</th>" for col in available)
-
     body = ""
 
     for row in rows:
@@ -189,19 +204,147 @@ def traffic_summary(rows):
     return result
 
 
-def build_html(rows, metrics_rows=None, edge_rows=None, metadata=None):
+def experimental_ml_summary(rows):
+    """Display experimental ML predictions and anomaly scores."""
+    if not rows:
+        return """
+        <div class="card">
+            <p>Experimental ML prediction data is not available.</p>
+            <p>Expected file: results/experimental_ml_predictions.csv</p>
+        </div>
+        """
+
+    groups = defaultdict(list)
+
+    for row in rows:
+        groups[row.get("source", "Unknown")].append(row)
+
+    total_mismatches = sum(
+        row.get("prediction", "").strip().upper()
+        != row.get("reference_prediction", "").strip().upper()
+        for row in rows
+    )
+
+    result = f"""
+    <div class="card">
+        <h3>Experimental ML Overview</h3>
+        <p>Total samples: <strong>{len(rows)}</strong></p>
+        <p>Prediction/reference mismatches:
+        <strong>{total_mismatches}</strong></p>
+        <p class="notice">
+            Reference predictions are comparison values.
+            They are not assumed to be verified ground-truth labels.
+        </p>
+    </div>
+    """
+
+    for source, group in sorted(groups.items()):
+        predictions = Counter(
+            row.get("prediction", "Unknown").strip().upper()
+            for row in group
+        )
+
+        references = Counter(
+            row.get("reference_prediction", "Unknown").strip().upper()
+            for row in group
+        )
+
+        mismatches = sum(
+            row.get("prediction", "").strip().upper()
+            != row.get("reference_prediction", "").strip().upper()
+            for row in group
+        )
+
+        scores = []
+
+        for row in group:
+            try:
+                scores.append(float(row.get("anomaly_score", "")))
+            except (ValueError, TypeError):
+                continue
+
+        if scores:
+            score_summary = (
+                f"<p>Average anomaly score: {sum(scores) / len(scores):.6f}</p>"
+                f"<p>Minimum anomaly score: {min(scores):.6f}</p>"
+                f"<p>Maximum anomaly score: {max(scores):.6f}</p>"
+            )
+        else:
+            score_summary = "<p>Anomaly scores unavailable.</p>"
+
+        result += f"""
+        <section class="card">
+            <h3>{escape(source)}</h3>
+            <p>Samples: <strong>{len(group)}</strong></p>
+            <p>Prediction counts: {escape(dict(predictions))}</p>
+            <p>Reference prediction counts: {escape(dict(references))}</p>
+            <p>Prediction/reference mismatches: <strong>{mismatches}</strong></p>
+            {score_summary}
+        </section>
+        """
+
+    detail_rows = ""
+
+    for row in rows:
+        prediction = row.get("prediction", "").strip().upper()
+        reference = row.get("reference_prediction", "").strip().upper()
+        mismatch = prediction != reference
+
+        detail_rows += f"""
+        <tr>
+            <td>{escape(row.get('source', ''))}</td>
+            <td>{escape(row.get('window', ''))}</td>
+            <td>{escape(row.get('can_id', ''))}</td>
+            <td>{escape(row.get('message_count', ''))}</td>
+            <td>{escape(row.get('label', ''))}</td>
+            <td>{escape(prediction)}</td>
+            <td>{escape(row.get('anomaly_score', ''))}</td>
+            <td>{escape(reference)}</td>
+            <td>{'Mismatch' if mismatch else 'Match'}</td>
+        </tr>
+        """
+
+    result += f"""
+    <div class="card">
+        <h3>Experimental ML Sample Details</h3>
+        <table>
+            <tr>
+                <th>Source</th>
+                <th>Window</th>
+                <th>CAN ID</th>
+                <th>Message Count</th>
+                <th>Label</th>
+                <th>ML Prediction</th>
+                <th>Anomaly Score</th>
+                <th>Reference Prediction</th>
+                <th>Comparison</th>
+            </tr>
+            {detail_rows}
+        </table>
+    </div>
+    """
+
+    return result
+
+
+def build_html(
+    rows,
+    metrics_rows=None,
+    edge_rows=None,
+    metadata=None,
+    experimental_rows=None,
+):
     """Build the complete dashboard page."""
     metrics_rows = metrics_rows or []
     edge_rows = edge_rows or []
     metadata = metadata or {}
+    experimental_rows = experimental_rows or []
 
     input_dataset = metadata.get("input_dataset", "Not available")
     model_file = metadata.get("model_file", "Not available")
     rate_threshold = metadata.get("rate_threshold", "Not available")
     sample_count = metadata.get("sample_count", len(rows))
     run_timestamp = metadata.get("run_timestamp", "Not available")
-
-    generated_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -269,11 +412,11 @@ footer {{
 <header>
     <h1>CAN-Sentinel Detector Dashboard</h1>
     <p>Vehicle CAN Network Intrusion Detection System</p>
-    <p>Input dataset: {escape(str(input_dataset))}</p>
-<p>Model file: {escape(str(model_file))}</p>
-<p>Rate-based threshold: {escape(str(rate_threshold))}</p>
-<p>Run timestamp: {escape(str(run_timestamp))}</p>
-<p>Sample count: <strong>{escape(str(sample_count))}</strong></p>
+    <p>Input dataset: {escape(input_dataset)}</p>
+    <p>Model file: {escape(model_file)}</p>
+    <p>Rate-based threshold: {escape(rate_threshold)}</p>
+    <p>Run timestamp: {escape(run_timestamp)}</p>
+    <p>Sample count: <strong>{escape(sample_count)}</strong></p>
 </header>
 
 <div class="notice">
@@ -294,6 +437,10 @@ footer {{
 <h2>Normal and High-Rate Traffic Results</h2>
 
 {traffic_summary(rows)}
+
+<h2>Experimental ML Prediction Results</h2>
+
+{experimental_ml_summary(experimental_rows)}
 
 <h2>Detector Evaluation Metrics</h2>
 
@@ -336,12 +483,34 @@ def main():
 
         metrics_rows = []
         edge_rows = []
+        experimental_rows = []
 
         if METRICS_FILE.exists():
             _, metrics_rows = read_csv(METRICS_FILE)
 
         if EDGE_CASE_FILE.exists():
             _, edge_rows = read_csv(EDGE_CASE_FILE)
+
+        if EXPERIMENTAL_ML_FILE.exists():
+            experimental_headers, experimental_rows = read_csv(
+                EXPERIMENTAL_ML_FILE
+            )
+
+            missing_experimental = (
+                EXPERIMENTAL_REQUIRED_COLUMNS - set(experimental_headers)
+            )
+
+            if missing_experimental:
+                print(
+                    "WARNING: Experimental ML CSV missing columns: "
+                    + ", ".join(sorted(missing_experimental))
+                )
+                experimental_rows = []
+        else:
+            print(
+                "WARNING: Experimental ML file not found. "
+                "Its dashboard section will show unavailable."
+            )
 
         if OUTPUT_FILE.exists() and "--force" not in sys.argv:
             print(f"ERROR: Report already exists: {OUTPUT_FILE}")
@@ -351,20 +520,28 @@ def main():
         OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
         metadata = {
-    "input_dataset": str(INPUT_FILE.relative_to(PROJECT_ROOT)),
-    "model_file": "Not available",
-    "rate_threshold": "Not available",
-    "run_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    "sample_count": len(rows)
-}
+            "input_dataset": str(INPUT_FILE.relative_to(PROJECT_ROOT)),
+            "model_file": "Not available",
+            "rate_threshold": "Not available",
+            "run_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "sample_count": len(rows),
+        }
 
-        page = build_html(rows, metrics_rows, edge_rows, metadata)
+        page = build_html(
+            rows,
+            metrics_rows,
+            edge_rows,
+            metadata,
+            experimental_rows,
+        )
+
         OUTPUT_FILE.write_text(page, encoding="utf-8")
 
         print(f"Dashboard updated successfully: {OUTPUT_FILE}")
         print(f"Integration records: {len(rows)}")
         print(f"Metrics records: {len(metrics_rows)}")
         print(f"Edge-case scenarios: {len(edge_rows)}")
+        print(f"Experimental ML records: {len(experimental_rows)}")
 
         return 0
 

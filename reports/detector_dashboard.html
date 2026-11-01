@@ -65,10 +65,10 @@ footer {
     <h1>CAN-Sentinel Detector Dashboard</h1>
     <p>Vehicle CAN Network Intrusion Detection System</p>
     <p>Input dataset: results\integration_results.csv</p>
-<p>Model file: Not available</p>
-<p>Rate-based threshold: Not available</p>
-<p>Run timestamp: 2026-10-31 22:25:27</p>
-<p>Sample count: <strong>60</strong></p>
+    <p>Model file: Not available</p>
+    <p>Rate-based threshold: Not available</p>
+    <p>Run timestamp: 2026-11-01 14:40:51</p>
+    <p>Sample count: <strong>60</strong></p>
 </header>
 
 <div class="notice">
@@ -186,6 +186,1017 @@ footer {
     
             </section>
             
+
+<h2>Experimental ML Prediction Results</h2>
+
+
+    <div class="card">
+        <h3>Experimental ML Overview</h3>
+        <p>Total samples: <strong>80</strong></p>
+        <p>Prediction/reference mismatches:
+        <strong>41</strong></p>
+        <p class="notice">
+            Reference predictions are comparison values.
+            They are not assumed to be verified ground-truth labels.
+        </p>
+    </div>
+    
+        <section class="card">
+            <h3>high_rate_traffic_new</h3>
+            <p>Samples: <strong>40</strong></p>
+            <p>Prediction counts: {&#x27;NORMAL&#x27;: 40}</p>
+            <p>Reference prediction counts: {&#x27;ANOMALY&#x27;: 40}</p>
+            <p>Prediction/reference mismatches: <strong>40</strong></p>
+            <p>Average anomaly score: 0.039034</p><p>Minimum anomaly score: 0.039034</p><p>Maximum anomaly score: 0.039034</p>
+        </section>
+        
+        <section class="card">
+            <h3>normal_traffic_new</h3>
+            <p>Samples: <strong>40</strong></p>
+            <p>Prediction counts: {&#x27;NORMAL&#x27;: 39, &#x27;ANOMALY&#x27;: 1}</p>
+            <p>Reference prediction counts: {&#x27;NORMAL&#x27;: 38, &#x27;ANOMALY&#x27;: 2}</p>
+            <p>Prediction/reference mismatches: <strong>1</strong></p>
+            <p>Average anomaly score: 0.262696</p><p>Minimum anomaly score: -0.045876</p><p>Maximum anomaly score: 0.354788</p>
+        </section>
+        
+    <div class="card">
+        <h3>Experimental ML Sample Details</h3>
+        <table>
+            <tr>
+                <th>Source</th>
+                <th>Window</th>
+                <th>CAN ID</th>
+                <th>Message Count</th>
+                <th>Label</th>
+                <th>ML Prediction</th>
+                <th>Anomaly Score</th>
+                <th>Reference Prediction</th>
+                <th>Comparison</th>
+            </tr>
+            
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>0</td>
+            <td>0x100</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2890592769367755</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>0</td>
+            <td>0x120</td>
+            <td>3</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.0948427516097965</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>0</td>
+            <td>0x200</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.35478792178797675</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>0</td>
+            <td>0x300</td>
+            <td>10</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.1391745057078262</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>1</td>
+            <td>0x100</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.279109900614878</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>1</td>
+            <td>0x120</td>
+            <td>9</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2302831601062829</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>1</td>
+            <td>0x200</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.35478792178797675</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>1</td>
+            <td>0x300</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2292340116685243</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>2</td>
+            <td>0x100</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.260462831950075</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>2</td>
+            <td>0x120</td>
+            <td>9</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.22130970656187587</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>2</td>
+            <td>0x200</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.3145391216728933</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>2</td>
+            <td>0x300</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2543435981815476</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>3</td>
+            <td>0x100</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.28745287419277066</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>3</td>
+            <td>0x120</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.29612825063025033</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>3</td>
+            <td>0x200</td>
+            <td>2</td>
+            <td>normal_new</td>
+            <td>ANOMALY</td>
+            <td>-0.04587625078979851</td>
+            <td>ANOMALY</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>3</td>
+            <td>0x300</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.3145391216728933</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>4</td>
+            <td>0x100</td>
+            <td>6</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2811913214039202</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>4</td>
+            <td>0x120</td>
+            <td>6</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.28484012965555083</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>4</td>
+            <td>0x200</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.19769354126153726</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>4</td>
+            <td>0x300</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.29141291140527</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>5</td>
+            <td>0x100</td>
+            <td>6</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.270895777369352</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>5</td>
+            <td>0x120</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.30866936307125015</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>5</td>
+            <td>0x200</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.35478792178797675</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>5</td>
+            <td>0x300</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.279109900614878</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>6</td>
+            <td>0x100</td>
+            <td>11</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.07175516149173611</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>6</td>
+            <td>0x120</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.28563651118933153</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>6</td>
+            <td>0x200</td>
+            <td>5</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.29141291140527</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>6</td>
+            <td>0x300</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.2537111054918725</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>7</td>
+            <td>0x100</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.3377082449008054</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>7</td>
+            <td>0x120</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.34975294129343093</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>7</td>
+            <td>0x200</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.3345795841839149</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>7</td>
+            <td>0x300</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.21138031015562275</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>8</td>
+            <td>0x100</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.29090993892308153</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>8</td>
+            <td>0x120</td>
+            <td>6</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.28484012965555083</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>8</td>
+            <td>0x200</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.29612825063025033</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>8</td>
+            <td>0x300</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.1911705443145857</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>9</td>
+            <td>0x100</td>
+            <td>4</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.260462831950075</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>9</td>
+            <td>0x120</td>
+            <td>6</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.26679252228496597</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>9</td>
+            <td>0x200</td>
+            <td>8</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.30866936307125015</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>normal_traffic_new</td>
+            <td>9</td>
+            <td>0x300</td>
+            <td>7</td>
+            <td>normal_new</td>
+            <td>NORMAL</td>
+            <td>0.3301484088716028</td>
+            <td>NORMAL</td>
+            <td>Match</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>0</td>
+            <td>0x100</td>
+            <td>61</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>0</td>
+            <td>0x120</td>
+            <td>61</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>0</td>
+            <td>0x200</td>
+            <td>60</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>0</td>
+            <td>0x300</td>
+            <td>68</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>1</td>
+            <td>0x100</td>
+            <td>61</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>1</td>
+            <td>0x120</td>
+            <td>60</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>1</td>
+            <td>0x200</td>
+            <td>64</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>1</td>
+            <td>0x300</td>
+            <td>65</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>2</td>
+            <td>0x100</td>
+            <td>63</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>2</td>
+            <td>0x120</td>
+            <td>64</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>2</td>
+            <td>0x200</td>
+            <td>63</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>2</td>
+            <td>0x300</td>
+            <td>60</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>3</td>
+            <td>0x100</td>
+            <td>50</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>3</td>
+            <td>0x120</td>
+            <td>56</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>3</td>
+            <td>0x200</td>
+            <td>74</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>3</td>
+            <td>0x300</td>
+            <td>70</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>4</td>
+            <td>0x100</td>
+            <td>76</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>4</td>
+            <td>0x120</td>
+            <td>57</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>4</td>
+            <td>0x200</td>
+            <td>63</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>4</td>
+            <td>0x300</td>
+            <td>54</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>5</td>
+            <td>0x100</td>
+            <td>60</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>5</td>
+            <td>0x120</td>
+            <td>67</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>5</td>
+            <td>0x200</td>
+            <td>62</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>5</td>
+            <td>0x300</td>
+            <td>61</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>6</td>
+            <td>0x100</td>
+            <td>64</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>6</td>
+            <td>0x120</td>
+            <td>65</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>6</td>
+            <td>0x200</td>
+            <td>59</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>6</td>
+            <td>0x300</td>
+            <td>62</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>7</td>
+            <td>0x100</td>
+            <td>69</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>7</td>
+            <td>0x120</td>
+            <td>70</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>7</td>
+            <td>0x200</td>
+            <td>58</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>7</td>
+            <td>0x300</td>
+            <td>53</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>8</td>
+            <td>0x100</td>
+            <td>55</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>8</td>
+            <td>0x120</td>
+            <td>64</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>8</td>
+            <td>0x200</td>
+            <td>63</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>8</td>
+            <td>0x300</td>
+            <td>68</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>9</td>
+            <td>0x100</td>
+            <td>56</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>9</td>
+            <td>0x120</td>
+            <td>52</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>9</td>
+            <td>0x200</td>
+            <td>62</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        <tr>
+            <td>high_rate_traffic_new</td>
+            <td>9</td>
+            <td>0x300</td>
+            <td>80</td>
+            <td>high_rate_new</td>
+            <td>NORMAL</td>
+            <td>0.03903355101733008</td>
+            <td>ANOMALY</td>
+            <td>Mismatch</td>
+        </tr>
+        
+        </table>
+    </div>
+    
 
 <h2>Detector Evaluation Metrics</h2>
 
