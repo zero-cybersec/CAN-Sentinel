@@ -25,7 +25,7 @@ Total: 160 messages.
 5. Reproducibility
 Fixed seed: 13.
 Deterministic generation design: Confirmed.
-Repeated-run comparison: Not performed.
+Repeated-run comparison: PASS. Generated CSV files are identical.
 
 6. Observations
 Normal traffic interval: 20 ms.
