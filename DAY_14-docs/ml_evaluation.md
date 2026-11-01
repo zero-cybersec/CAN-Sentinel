@@ -2,8 +2,8 @@
 
 **Project:** CAN-Sentinel — Automotive CAN Bus Intrusion Detection System  
 **Document Path:** `docs/ml_evaluation.md`  
-**Target Audience:** Nikhil, Avinash, and CAN-Sentinel Development Team  
-**Evaluation Scope:** Traffic Feature Profiling, IsolationForest Anomaly Detection, Confusion Matrix & Metric Analysis, Synthetic Dataset Limitations, and Deployment Recommendations.
+**Target Audience:** Nikhil, Avinash, and the CAN-Sentinel Development Team  
+**Evaluation Scope:** Traffic feature profiling, IsolationForest anomaly detection, confusion matrix and metric analysis, synthetic dataset limitations, and deployment recommendations.
 
 ---
 
@@ -11,18 +11,18 @@
 
 **Hi Avinash,**
 
-Yahan CAN-Sentinel ML anomaly detection pipeline ka complete feature analysis aur quantitative evaluation document kiya gaya hai. Humne `normal_traffic_new_1.csv` (clean baseline) aur `high_rate_traffic_new_1.csv` (DoS/flooding attack) traffic captures ke features ko time-window basis par extract karke model behavior aur metrics ko thoroughly evaluate kiya hai:
+This document presents the complete feature analysis and quantitative evaluation of the CAN-Sentinel ML anomaly detection pipeline. We extracted features from the `normal_traffic_new_1.csv` (clean baseline) and `high_rate_traffic_new_1.csv` (DoS/flooding attack) traffic captures on a time-window basis and thoroughly evaluated model behavior and metrics. The key findings are:
 
-1. **Feature Separation:** Normal aur High-Rate traffic ke darmiyan charon key features (`message_count`, `avg_interval_ms`, `unique_payloads`, `payload_entropy`) mein distinct statistical separation hai. High-rate flooding bus load ko 10x increase karta hai (40 ms -> 4 ms interval, 6.25 -> 62.5 messages/window).
-2. **Model Performance at Contamination = 0.05:** Model ne 100% attack recall achieve kiya (40/40 high-rate windows flagged), with **Precision = 95.24%**, **Recall = 100.00%**, aur **F1-Score = 97.56%** (2 False Positives out of 40 normal windows).
-3. **Threshold Sensitivity (`contamination` parameter):** Contamination setting threshold (`offset_`) ko directly shift karti hai. `0.01` par threshold collapse ho jata hai (0% attack detection), jabki `0.10` par false alarms badh kar 4 ho jate hain bina kisi additional detection gain ke.
-4. **Key Caution:** Dataset purely synthetic hai (10 seconds / 40 windows per class). Real-vehicle CAN bus par deploy karne se pehle dynamic vehicle state transitions aur subtle attacks (masquerade/spoofing) par testing zaroori hai.
+1. **Feature Separation:** Across all four key features (`message_count`, `avg_interval_ms`, `unique_payloads`, `payload_entropy`), there is distinct statistical separation between normal and high-rate traffic. High-rate flooding increases bus load by 10x (interval drops from 40 ms to 4 ms, and message count per window rises from 6.25 to 62.5).
+2. **Model Performance at Contamination = 0.05:** The model achieved 100% attack recall (40/40 high-rate windows flagged), with **Precision = 95.24%**, **Recall = 100.00%**, and **F1-Score = 97.56%** (2 false positives out of 40 normal windows).
+3. **Threshold Sensitivity (`contamination` parameter):** The contamination setting directly shifts the decision threshold (`offset_`). At `0.01`, the threshold collapses (0% attack detection), while at `0.10`, false alarms rise to 4 without any additional detection gain.
+4. **Key Caution:** The dataset is purely synthetic (10 seconds / 40 windows per class). Before deploying on a real vehicle CAN bus, testing under dynamic vehicle state transitions and subtle attacks (masquerade/spoofing) is essential.
 
 ---
 
 ## 2. Normal vs. High-Rate Traffic Comparison
 
-Dono datasets 10.0 seconds duration ke captures hain. ML feature extraction pipeline in frames ko **0.25-second (250 ms) non-overlapping time windows** mein aggregate karta hai, jisse har class ke **40 windows** (total 80 evaluation windows) form hote hain.
+Both datasets are captures of 10.0-second duration. The ML feature extraction pipeline aggregates these frames into **0.25-second (250 ms) non-overlapping time windows**, producing **40 windows per class** (80 evaluation windows in total).
 
 ### High-Level Capture Summary
 
@@ -39,12 +39,12 @@ Dono datasets 10.0 seconds duration ke captures hain. ML feature extraction pipe
 
 ## 3. Deep-Dive Feature Analysis
 
-Pipeline har 250 ms window ke liye 4 statistical/information-theoretic features extract karta hai:
+For each 250 ms window, the pipeline extracts four statistical/information-theoretic features:
 
-1. `message_count`: Window ke andar total received CAN frames.
-2. `avg_interval_ms`: Window ke andar consecutive frames ka average time difference (milliseconds).
-3. `unique_payloads`: Window ke andar distinct data byte sequences ki count.
-4. `payload_entropy`: Window ke andar payload byte sequences ki Shannon entropy (bits).
+1. `message_count`: The total number of CAN frames received within the window.
+2. `avg_interval_ms`: The average time difference (in milliseconds) between consecutive frames within the window.
+3. `unique_payloads`: The count of distinct data byte sequences within the window.
+4. `payload_entropy`: The Shannon entropy (in bits) of the payload byte sequences within the window.
 
 ### Statistical Comparison Table (40 Normal Windows vs. 40 High-Rate Windows)
 
@@ -54,28 +54,28 @@ Pipeline har 250 ms window ke liye 4 statistical/information-theoretic features 
 | | High-Rate | **62.50** | 0.51 | 62.00 | 62.50 | 63.00 | **10x surge**: DoS bus flooding injection |
 | **`avg_interval_ms`** | Normal | **40.00** | 0.00 | 40.00 | 40.00 | 40.00 | Fixed 40 ms periodic ECU cycle time |
 | | High-Rate | **4.00** | 0.00 | 4.00 | 4.00 | 4.00 | **Drastic drop**: Aggressive micro-interval packet blast |
-| **`unique_payloads`** | Normal | **6.25** | 0.44 | 6.00 | 6.00 | 7.00 | Har packet ka unique random/counter data within small batch |
+| **`unique_payloads`** | Normal | **6.25** | 0.44 | 6.00 | 6.00 | 7.00 | Each packet carries a unique random/counter value within a small batch |
 | | High-Rate | **62.50** | 0.51 | 62.00 | 62.50 | 63.00 | **High variety**: Dense stream of distinct random payloads |
-| **`payload_entropy`** | Normal | **2.64** bits | 0.10 | 2.58 | 2.58 | 2.81 | Low entropy; limited unique states in small window |
+| **`payload_entropy`** | Normal | **2.64** bits | 0.10 | 2.58 | 2.58 | 2.81 | Low entropy; limited unique states in a small window |
 | | High-Rate | **5.97** bits | 0.01 | 5.95 | 5.97 | 5.98 | **High entropy**: Uniformly randomized synthetic payloads |
 
 ### Feature-by-Feature Detailed Insights
 
 1. **`message_count`:**
-   - **Mechanism:** Bus load directly reflect karta hai. Normal operational traffic 6 ya 7 messages per window produce karta hai. High-rate traffic continuous flooding karta hai, resulting in exactly ~62–63 frames per window.
-   - **Separation Power:** Yeh feature clear linearly separable boundary provide karta hai (max normal = 7 vs min high-rate = 62). DoS attack detection ke liye single strongest volume metric hai.
+   - **Mechanism:** This feature directly reflects bus load. Normal operational traffic produces 6 or 7 messages per window. High-rate traffic floods the bus continuously, resulting in exactly ~62–63 frames per window.
+   - **Separation Power:** This feature provides a clear linearly separable boundary (max normal = 7 vs. min high-rate = 62). It is the single strongest volume metric for DoS attack detection.
 
 2. **`avg_interval_ms`:**
-   - **Mechanism:** Normal traffic mein ECUs periodic schedule par broadcast karte hain (40 ms mean gap). Attack condition mein attacker CAN bus par arbitration capture karne ke liye minimum delay (4 ms) par frames transmit karta hai.
-   - **Separation Power:** 10x difference (40 ms vs 4 ms) timing anomaly detection ko ultra-sharp banata hai.
+   - **Mechanism:** In normal traffic, ECUs broadcast on a periodic schedule (40 ms mean gap). Under attack conditions, the attacker transmits frames at minimum delay (4 ms) to capture arbitration on the CAN bus.
+   - **Separation Power:** The 10x difference (40 ms vs. 4 ms) makes timing anomaly detection extremely sharp.
 
 3. **`unique_payloads`:**
-   - **Mechanism:** Synthetic generator mein har frame random payload generate karta hai, isliye unique payload count directly `message_count` ke saath scale hoti hai.
-   - **Caveat:** Real vehicle CAN bus par signal values (e.g. coolant temperature, gear position) repetitive ya slowly changing hoti hain, jabki synthetic attack stream random bytes push karti hai.
+   - **Mechanism:** In the synthetic generator, each frame produces a random payload, so the unique payload count scales directly with `message_count`.
+   - **Caveat:** On a real vehicle CAN bus, signal values (e.g., coolant temperature, gear position) are repetitive or slowly changing, whereas the synthetic attack stream pushes random bytes.
 
 4. **`payload_entropy`:**
-   - **Mechanism:** Shannon entropy $H(X) = -\sum p(x) \log_2 p(x)$ measure karti hai. Normal traffic mein 6 frames hone ki wajah se maximum theoretical entropy $\log_2(6) \approx 2.58$ bits hoti hai. High-rate traffic mein 62–63 unique frames hone par entropy $\log_2(62) \approx 5.95$ bits tak pahunch jati hai.
-   - **Utility:** Fuzzing aur randomized payload injection ko regular telemetry se distinguish karne ke liye highly effective hai.
+   - **Mechanism:** This measures Shannon entropy, $H(X) = -\sum p(x) \log_2 p(x)$. In normal traffic, with 6 frames per window, the maximum theoretical entropy is $\log_2(6) \approx 2.58$ bits. In high-rate traffic, with 62–63 unique frames, entropy reaches up to $\log_2(62) \approx 5.95$ bits.
+   - **Utility:** This is highly effective for distinguishing fuzzing and randomized payload injection from regular telemetry.
 
 ---
 
@@ -83,32 +83,32 @@ Pipeline har 250 ms window ke liye 4 statistical/information-theoretic features 
 
 ### Training Protocol (Unsupervised Anomaly Detection)
 - **Model:** Scikit-Learn `IsolationForest(n_estimators=200, random_state=42)`
-- **Training Subset:** Clean normal traffic only (`label` contains "normal", 40 windows). Attack samples training ke time model ko provide nahi kiye jate (One-Class semi-supervised formulation).
-- **Core Hypothesis:** Isolation Forest clean baseline traffic ka feature subspace learn karta hai. Jo samples clean distribution se isolated hain (kam tree depth par partition ho jate hain), unhe anomaly flag kiya jata hai.
+- **Training Subset:** Clean normal traffic only (`label` contains "normal", 40 windows). Attack samples are not provided to the model during training (one-class semi-supervised formulation).
+- **Core Hypothesis:** The Isolation Forest learns the feature subspace of clean baseline traffic. Samples that are isolated from the clean distribution (i.e., partitioned at a shallow tree depth) are flagged as anomalies.
 
 ### Feature Space Distribution Shift
 
 | Dimension | Training Set (Clean Normal) | Testing Set (All 80 Windows) | Isolation Forest Partitioning Impact |
 |:---|:---:|:---:|:---|
-| **Sample Distribution** | 40 rows (100% Normal) | 80 rows (50% Normal, 50% High-Rate) | Bimodal distribution with extreme gap |
-| **`message_count` Range** | $[6.0, 7.0]$ | $[6.0, 63.0]$ | High-rate samples root split par hi isolate ho jate hain |
-| **`avg_interval_ms` Range** | $[40.0, 40.0]$ | $[4.0, 40.0]$ | Zero-variance baseline vs 4.0 ms extreme outlier |
-| **`payload_entropy` Range** | $[2.58, 2.81]$ | $[2.58, 5.98]$ | +3.33 bits shift test set mein |
-| **Tree Average Path Length** | High path length ($h(x) \approx \text{deep}$) | Normal = Deep, High-Rate = Very Short ($h(x) \approx 1-2$) | Anomaly score for high-rate is drastically lower (more negative) |
+| **Sample Distribution** | 40 rows (100% Normal) | 80 rows (50% Normal, 50% High-Rate) | Bimodal distribution with an extreme gap |
+| **`message_count` Range** | $[6.0, 7.0]$ | $[6.0, 63.0]$ | High-rate samples are isolated at the root split itself |
+| **`avg_interval_ms` Range** | $[40.0, 40.0]$ | $[4.0, 40.0]$ | Zero-variance baseline vs. 4.0 ms extreme outlier |
+| **`payload_entropy` Range** | $[2.58, 2.81]$ | $[2.58, 5.98]$ | A +3.33-bit shift in the test set |
+| **Tree Average Path Length** | High path length ($h(x) \approx \text{deep}$) | Normal = Deep, High-Rate = Very Short ($h(x) \approx 1-2$) | The anomaly score for high-rate traffic is drastically lower (more negative) |
 
 ---
 
 ## 5. Performance Evaluation: Confusion Matrix & Metrics
 
-Sensitivity experiment mein `contamination` parameter ko sweep kiya gaya across **{0.01, 0.05, 0.10}**.
+In the sensitivity experiment, the `contamination` parameter was swept across **{0.01, 0.05, 0.10}**.
 
 ### Classification Metrics Formulation
 - **Positive Class:** Anomaly / Attack (High-Rate Traffic)
 - **Negative Class:** Normal / Benign Traffic
-- **True Positive (TP):** High-rate window correctly flagged as ANOMALY.
-- **False Positive (FP):** Normal window incorrectly flagged as ANOMALY.
-- **True Negative (TN):** Normal window correctly classified as NORMAL.
-- **False Negative (FN):** High-rate window missed and classified as NORMAL.
+- **True Positive (TP):** A high-rate window correctly flagged as ANOMALY.
+- **False Positive (FP):** A normal window incorrectly flagged as ANOMALY.
+- **True Negative (TN):** A normal window correctly classified as NORMAL.
+- **False Negative (FN):** A high-rate window missed and classified as NORMAL.
 
 ### Detailed Comparison Across Contamination Settings
 
@@ -146,7 +146,7 @@ Actual High-Rate          0 (FN)             40 (TP)
 Actual Normal            39 (TN)              1 (FP)
 Actual High-Rate         40 (FN)              0 (TP)
 ```
-- **Analysis:** Contamination ko 0.01 set karne se decision boundary normal cluster ke itne extreme tail par shift ho gayi ki high-rate score cluster threshold ke upar chala gaya. Result: Zero attack detection (Complete Recall Collapse).
+- **Analysis:** Setting contamination to 0.01 shifts the decision boundary so far into the extreme tail of the normal cluster that the high-rate score cluster moves above the threshold. The result is zero attack detection (complete recall collapse).
 
 #### 3. Contamination = 0.10 (Over-Sensitive / Elevated False Alarms)
 ```
@@ -154,43 +154,43 @@ Actual High-Rate         40 (FN)              0 (TP)
 Actual Normal            36 (TN)              4 (FP)
 Actual High-Rate          0 (FN)             40 (TP)
 ```
-- **Analysis:** Cutoff loose hone se normal traffic ke 4 benign low-frequency windows anomaly ban gaye. Attack detection 40/40 par constant raha, isliye precision drop ho kar 90.91% ho gayi.
+- **Analysis:** With a looser cutoff, 4 benign low-frequency windows from normal traffic are classified as anomalies. Attack detection remains constant at 40/40, so precision drops to 90.91%.
 
 ---
 
 ## 6. Synthetic Dataset Limitations
 
-Realistic automotive IDS validation ke point of view se is dataset ki following technical limitations hain:
+From the perspective of realistic automotive IDS validation, this dataset has the following technical limitations:
 
 1. **Simulated Perfect Periodicity (No Real Jitter or Arbitration):**
-   - Synthetic generator strict intervals par messages queue karta hai (e.g. exactly 40 ms ya 4 ms).
-   - Real CAN networks par physical bus arbitration, transmission retries, clock drift, aur bit-stuffing ki wajah se jitter naturally occur hota hai.
+   - The synthetic generator queues messages at strict intervals (e.g., exactly 40 ms or 4 ms).
+   - On real CAN networks, jitter occurs naturally due to physical bus arbitration, transmission retries, clock drift, and bit-stuffing.
 2. **Minimal Training Sample Size (40 Windows / 10 Seconds):**
-   - 40 windows threshold setting ke liye statistically small sample size hai. Aise chote dataset par `contamination` setting 1 ya 2 outlier samples se disproportionately distort ho sakti hai.
+   - 40 windows is a statistically small sample size for threshold setting. On such a small dataset, the `contamination` setting can be disproportionately distorted by just 1 or 2 outlier samples.
 3. **Absence of ECU State Transitions:**
-   - Real vehicle operations mein ignition-on, idle, high-speed cruise, emergency braking, aur diagnostic mode ke dauran message frequencies legitimate tarike se change hoti hain. Synthetic data mein yeh dynamics missing hain.
+   - In real vehicle operation, message frequencies legitimately change during ignition-on, idle, high-speed cruise, emergency braking, and diagnostic mode. These dynamics are missing from the synthetic data.
 4. **Single Extreme Attack Type Evaluated (DoS Flooding Only):**
-   - High-rate flooding detection sabse asaan attack vector hai kyunki yeh bus volume ko 10x explode karta hai.
-   - Yeh evaluation subtle attacks (jaise low-frequency payload spoofing, stealthy sensor replay, ya selective ECU masquerading) par model ki detection capability prove nahi karta.
+   - High-rate flooding detection is the easiest attack vector, because it explodes bus volume by 10x.
+   - This evaluation does not prove the model's detection capability against subtle attacks (such as low-frequency payload spoofing, stealthy sensor replay, or selective ECU masquerading).
 5. **Lack of Independent Hold-Out Test Set:**
-   - Same continuous capture block se evaluation windows extract kiye gaye hain. True out-of-distribution generalization test nahi hui hai.
+   - The evaluation windows were extracted from the same continuous capture block. A true out-of-distribution generalization test has not been performed.
 
 ---
 
 ## 7. Actionable Recommendations for Avinash & Next Steps
 
-Avinash, model ko production/experimental prototype standard par lane ke liye yeh recommendations implement karni chahiye:
+Avinash, to bring the model up to a production/experimental prototype standard, the following recommendations should be implemented:
 
 1. **Move Away from Hardcoded Contamination:**
-   - `contamination` setting par rely karne ke bajaye, clean validation data ke decision scores par **Percentile Thresholding (e.g. 99th percentile of normal scores)** ya **Extreme Value Theory (EVT)** use karein.
+   - Instead of relying on the `contamination` setting, use **percentile thresholding** (e.g., the 99th percentile of scores on clean validation data) or **Extreme Value Theory (EVT)** on the decision scores.
 2. **Feature Engineering Expansion:**
-   - Sirf total `message_count` par depend na karein. Feature set mein yeh add karein:
-     - **Per-CAN-ID Delta Time Variance:** Individual critical IDs (e.g. `0x0C0` RPM, `0x0D0` Speed) ka interval variance.
-     - **CAN ID Entropy:** Bus par active IDs ki diversity (DoS flooding aksar single ID par concentrated hoti hai).
-     - **Cyclic Redundancy / Rolling Counter Check:** Automotive safety frames mein payload counter sequencing verify karna.
+   - Do not depend solely on the total `message_count`. Add the following to the feature set:
+     - **Per-CAN-ID Delta Time Variance:** Interval variance for individual critical IDs (e.g., `0x0C0` RPM, `0x0D0` Speed).
+     - **CAN ID Entropy:** Diversity of active IDs on the bus (DoS flooding is often concentrated on a single ID).
+     - **Cyclic Redundancy / Rolling Counter Check:** Verify payload counter sequencing in automotive safety frames.
 3. **Multi-Attack Capture Suite:**
-   - `machine_learning.py` mein available DoS, Fuzzing, Replay, aur Spoofing attack generators ke separate captures run karke comprehensive multi-class evaluation benchmark create karein.
+   - Run separate captures using the DoS, Fuzzing, Replay, and Spoofing attack generators available in `machine_learning.py`, and create a comprehensive multi-class evaluation benchmark.
 4. **Benchmarking with Hardware / SocketCAN:**
-   - CAN Buddy application aur Linux `vcan0` (SocketCAN) par live injection run karke latency aur memory footprint evaluate karein taaki embedded ECU constraints par real-time inference validate ho sake.
+   - Run live injection on the CAN Buddy application and Linux `vcan0` (SocketCAN) to evaluate latency and memory footprint, so that real-time inference can be validated against embedded ECU constraints.
 
 ---
