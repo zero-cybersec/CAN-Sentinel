@@ -272,6 +272,51 @@ The reference predictions have not been independently verified as ground-truth l
 The experimental predictions were loaded from an existing CSV file. The updated `can_model.joblib` model was not independently integrated or executed as part of this dashboard work.
 
 Further investigation with the ML team is required before drawing conclusions about model performance.
+ 
+ ### Machine Learning Model Performance Evaluation
+
+The dashboard was updated to display and compare different ML model configurations using the latest evaluation results provided by the Machine Learning team.
+
+### Model Configuration Comparison
+
+| Metric | Baseline (0.05) | Updated (0.01) | Over-sensitive (0.10) |
+|---|---:|---:|---:|
+| TP | 40 | 0 | 40 |
+| FP | 2 | 1 | 4 |
+| TN | 38 | 39 | 36 |
+| FN | 0 | 40 | 0 |
+| Accuracy | 97.50% | 48.75% | 95.00% |
+| Precision | 95.24% | 0.00% | 90.91% |
+| Recall | 100.00% | 0.00% | 100.00% |
+| F1-score | 97.56% | 0.00% | 95.24% |
+
+### Evaluation Observations
+
+- The baseline configuration (0.05) achieved 97.50% accuracy and 100% attack recall.
+- The updated configuration (0.01) failed to detect all 40 attack samples.
+- The over-sensitive configuration (0.10) detected all attack samples but produced more false positives.
+- The baseline configuration (0.05) is the recommended configuration based on the available evaluation results.
+
+### Dashboard Updates
+
+The HTML dashboard now includes:
+
+- ML model configuration comparison.
+- Confusion matrix values (TP, FP, TN, FN).
+- Accuracy, Precision, Recall and F1-score.
+- Recommended baseline configuration.
+- Threshold-collapse observation.
+
+### Verification
+
+- Dashboard regenerated successfully.
+- Existing dashboard and metadata test suites: 8 tests passed.
+- Updated HTML dashboard visually checked in the browser.
+- Existing dashboard sections were preserved.
+
+### Limitation
+
+These results represent the available evaluation dataset. Further validation using the production model and actual CAN traffic is required before claiming real-world detection performance.
 
 ## 9. Edge-Case Validation
 
