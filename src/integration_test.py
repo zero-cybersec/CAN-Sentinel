@@ -5,6 +5,7 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+from src.sequence_detector import sequence_match_ratio, hybrid_prediction
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RESULTS_DIR = BASE_DIR / "results"
@@ -65,6 +66,7 @@ def extract_features(csv_path):
             "unique_can_ids": window["can_id"].nunique(),
             "unique_payloads": len(payload_counts),
             "payload_entropy": round(entropy, 4),
+            "sequence_match_ratio": round(sequence_match_ratio(window), 4),
         })
     return rows
 
@@ -106,11 +108,16 @@ def main():
         else "NORMAL_BY_BASELINE"
         for interval in df["avg_interval_ms"]
     ]
+    df["sequence_prediction"] = [
+        "REPLAY_SUSPECTED" if ratio >= 0.8 else "NORMAL_BY_SEQUENCE"
+        for ratio in df["sequence_match_ratio"]
+    ]
     df["prediction"] = [
-        "HIGH_RATE_SUSPECTED" if interval <= 10.0
-        else ml_label
-        for interval, ml_label in zip(
-            df["avg_interval_ms"], df["ml_prediction"]
+        hybrid_prediction(rate, sequence, ml)
+        for rate, sequence, ml in zip(
+            df["rate_based_prediction"],
+            df["sequence_prediction"],
+            df["ml_prediction"]
         )
     ]
 
@@ -121,7 +128,7 @@ def main():
         "source_file", "message_count", "avg_interval_ms",
         "unique_can_ids", "unique_payloads", "payload_entropy",
         "ml_prediction", "anomaly_score", "rate_based_prediction",
-        "prediction"
+        "sequence_match_ratio", "sequence_prediction", "prediction"
     ]].to_string(index=False))
     print(f"\nIntegration results saved to: {OUTPUT_FILE}")
 

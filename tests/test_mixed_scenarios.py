@@ -2,6 +2,7 @@ import csv
 import pytest
 
 from src.integration_test import extract_features
+from src.evaluate_holdout import hybrid_prediction
 
 
 @pytest.mark.parametrize(
@@ -42,3 +43,20 @@ def test_mixed_scenario_classification(
         else "NORMAL"
     )
     assert prediction == expected
+
+
+@pytest.mark.parametrize(
+    "rate, sequence, ml, expected",
+    [
+        ("HIGH_RATE_SUSPECTED", "NORMAL_BY_SEQUENCE", "NORMAL",
+         "HIGH_RATE_SUSPECTED"),
+        ("NORMAL_BY_BASELINE", "REPLAY_SUSPECTED", "NORMAL",
+         "REPLAY_SUSPECTED"),
+        ("NORMAL_BY_BASELINE", "NORMAL_BY_SEQUENCE", "NORMAL",
+         "NORMAL"),
+        ("NORMAL_BY_BASELINE", "NORMAL_BY_SEQUENCE", "ANOMALY",
+         "ANOMALY"),
+    ],
+)
+def test_hybrid_prediction_fusion(rate, sequence, ml, expected):
+    assert hybrid_prediction(rate, sequence, ml) == expected
