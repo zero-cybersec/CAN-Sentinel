@@ -14,15 +14,20 @@ DETECTORS = {
 
 
 def actual_label(source_file):
-    """Infer synthetic ground-truth label from the dataset filename."""
-    name = str(source_file).lower()
+    """Map only explicitly supported synthetic dataset filenames to labels."""
+    name = Path(str(source_file)).name.lower()
 
-    if "high_rate" in name or "high-rate" in name:
-        return 1  # Attack / high-rate traffic
-    if "normal" in name:
-        return 0  # Normal traffic
+    labels = {
+        "normal_traffic.csv": 0,
+        "high_rate_traffic.csv": 1,
+    }
 
-    raise ValueError(f"Cannot infer ground truth from filename: {source_file}")
+    if name not in labels:
+        raise ValueError(
+            f"Unsupported ground-truth dataset filename: {source_file}"
+        )
+
+    return labels[name]
 
 
 def predicted_label(value):

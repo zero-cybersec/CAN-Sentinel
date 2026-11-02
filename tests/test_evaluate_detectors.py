@@ -63,3 +63,18 @@ def test_unknown_label_is_rejected():
 
     with pytest.raises(ValueError):
         predicted_label("UNKNOWN")
+
+
+def test_ambiguous_filenames_are_rejected():
+    for filename in (
+        "abnormal_traffic.csv",
+        "high_rate_attack.csv",
+        "unknown_traffic.csv",
+    ):
+        with pytest.raises(ValueError):
+            actual_label(filename)
+
+
+def test_supported_filename_with_directory():
+    assert actual_label("data/normal_traffic.csv") == 0
+    assert actual_label("data/high_rate_traffic.csv") == 1

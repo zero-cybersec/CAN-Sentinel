@@ -21,3 +21,14 @@ Automotive ECU Intrusion Detection System
 - Full test suite result: 17 passed.
 
 Note: Burst and Replay were flagged by the rate-based rule, not independently by the ML model. Results are limited to the current synthetic datasets and do not establish universal CAN detection performance.
+
+## Day 16 – Evaluation Reliability Improvements
+
+- Audited the detector evaluation pipeline and identified filename-derived synthetic ground-truth labels.
+- Regenerated evaluation metrics using the current 40 integration windows.
+- Replaced substring-based ground-truth inference with strict supported filename mapping.
+- Added regression tests for ambiguous filenames and directory-prefixed supported filenames.
+- Targeted evaluator tests: 7 passed.
+- Full test suite: 19 passed.
+
+Note: Evaluation metrics use synthetic normal and high-rate traffic labels. They do not establish independent real-world CAN detection performance.
