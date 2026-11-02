@@ -32,3 +32,24 @@ Note: Burst and Replay were flagged by the rate-based rule, not independently by
 - Full test suite: 19 passed.
 
 Note: Evaluation metrics use synthetic normal and high-rate traffic labels. They do not establish independent real-world CAN detection performance.
+
+##  Independent Holdout Evaluation and Replay Detection
+
+- Evaluated Zeeshan's independent synthetic holdout dataset containing Normal, Burst, Replay, and Recovery scenarios.
+- Added a shared sequence detector using 3-step CAN ID and payload repetition.
+- Integrated sequence-based detection into the production hybrid prediction pipeline.
+- Hybrid detection combines rate-based, sequence-based, and ML predictions.
+- Added regression coverage for hybrid prediction priority.
+
+### Holdout Evaluation
+
+- Burst: detected by rate-based detection.
+- Replay: detected by sequence-based detection.
+- Normal and Recovery: correctly classified in the supplied synthetic holdout.
+- Full automated test suite: 23 passed.
+
+### Limitations
+
+- Results apply to the supplied synthetic holdout dataset only.
+- The 3-step repetition pattern is not a universal CAN replay signature.
+- Real-vehicle datasets and broader attack-pattern validation remain necessary.
