@@ -54,38 +54,38 @@ The dashboard uses available CAN traffic records and detector output files to pr
 ### 4.2 Workflow Diagram
 
 ```text
-       CAN Traffic
-            |
-            v
-       CAN Logger
-            |
-            v
-       Traffic CSV
-            |
-            v
-    Feature Extraction
-            |
-            v
-     Detection Modules
-            |
-      +-----+------+
-      |     |      |
-      v     v      v
-      ML   Rate   Hybrid
-      |     |      |
-      +-----+------+
-            |
-            v
-     Evaluation Results
-            |
-            v
-       CSV Integration
-            |
-            v
-    Dashboard Generator
-            |
-            v
-      HTML Dashboard
+        CAN Traffic
+             |
+             v
+         CAN Logger
+             |
+             v
+         Traffic CSV
+             |
+             v
+      Feature Extraction
+             |
+             v
+       Detection Modules
+             |
+       +-----+------+
+       |     |      |
+       v     v      v
+       ML   Rate   Hybrid
+       |     |      |
+       +-----+------+
+             |
+             v
+       Evaluation Results
+             |
+             v
+        CSV Integration
+             |
+             v
+      Dashboard Generator
+             |
+             v
+        HTML Dashboard
 ```
 
 *Note: The diagram represents the intended project workflow. Availability of a particular model or production execution must be verified separately.*
@@ -128,6 +128,7 @@ The HTML report contains the following sections:
 6. Experimental ML Sample Details.
 7. Detector Evaluation Metrics.
 8. Edge-Case Validation Results.
+9. Machine Learning Model Performance Evaluation.
 
 ### 5.3 Dashboard Metadata
 
@@ -156,6 +157,8 @@ The dashboard uses CSV files to read and display traffic and detector results.
 | `results/detector_evaluation_metrics.csv` | Detector evaluation metrics |
 | `results/edge_case_validation.csv` | Edge-case validation information |
 | `results/experimental_ml_predictions.csv` | Experimental ML prediction results |
+| `results/day16_ml_evaluation.csv` | ML evaluation results supplied by the ML team |
+| `results/day16_ml_metrics.txt` | Production ML model evaluation metrics report |
 
 ### 6.2 Experimental ML Dataset
 
@@ -272,12 +275,14 @@ The reference predictions have not been independently verified as ground-truth l
 The experimental predictions were loaded from an existing CSV file. The updated `can_model.joblib` model was not independently integrated or executed as part of this dashboard work.
 
 Further investigation with the ML team is required before drawing conclusions about model performance.
- 
- ### Machine Learning Model Performance Evaluation
 
-The dashboard was updated to display and compare different ML model configurations using the latest evaluation results provided by the Machine Learning team.
+### 8.4 Machine Learning Model Performance Evaluation
 
-### Model Configuration Comparison
+The dashboard was further updated to display and compare different ML model configurations using the evaluation results provided by the Machine Learning team.
+
+#### Model Configuration Comparison
+
+The ML team evaluated three Isolation Forest configurations using 80 validation samples, consisting of 40 normal samples and 40 high-rate attack samples.
 
 | Metric | Baseline (0.05) | Updated (0.01) | Over-sensitive (0.10) |
 |---|---:|---:|---:|
@@ -290,33 +295,33 @@ The dashboard was updated to display and compare different ML model configuratio
 | Recall | 100.00% | 0.00% | 100.00% |
 | F1-score | 97.56% | 0.00% | 95.24% |
 
-### Evaluation Observations
+#### Evaluation Observations
 
 - The baseline configuration (0.05) achieved 97.50% accuracy and 100% attack recall.
 - The updated configuration (0.01) failed to detect all 40 attack samples.
 - The over-sensitive configuration (0.10) detected all attack samples but produced more false positives.
 - The baseline configuration (0.05) is the recommended configuration based on the available evaluation results.
 
-### Dashboard Updates
+#### Dashboard Updates
 
 The HTML dashboard now includes:
 
 - ML model configuration comparison.
 - Confusion matrix values (TP, FP, TN, FN).
-- Accuracy, Precision, Recall and F1-score.
+- Accuracy, Precision, Recall, and F1-score.
 - Recommended baseline configuration.
-- Threshold-collapse observation.
+- Threshold configuration comparison.
 
-### Verification
+#### Verification
 
 - Dashboard regenerated successfully.
 - Existing dashboard and metadata test suites: 8 tests passed.
 - Updated HTML dashboard visually checked in the browser.
 - Existing dashboard sections were preserved.
 
-### Limitation
+#### Limitation
 
-These results represent the available evaluation dataset. Further validation using the production model and actual CAN traffic is required before claiming real-world detection performance.
+These results represent the available evaluation dataset supplied by the ML team. Further validation using the production model and actual CAN traffic is required before claiming real-world detection performance.
 
 ## 9. Edge-Case Validation
 
@@ -376,9 +381,9 @@ python -m unittest discover -s tests -p "test_dashboard_metadata.py" -v
 | `tests/test_dashboard_metadata.py` | 4 |
 | **Total** | **8** |
 
-The existing dashboard and metadata test suites passed during their recorded verification.
+The existing dashboard and metadata test suites passed during verification.
 
-The experimental ML dashboard section was also checked visually in the browser. A separate automated test suite for the new experimental ML section has not yet been recorded.
+The experimental ML dashboard section and the model performance comparison were also checked visually in the browser.
 
 ### 10.4 Dashboard Generation
 
@@ -419,7 +424,9 @@ CAN-Sentinel/
 │   ├── edge_case_validation.csv
 │   ├── normal_traffic.csv
 │   ├── high_rate_traffic.csv
-│   └── experimental_ml_predictions.csv
+│   ├── experimental_ml_predictions.csv
+│   ├── day16_ml_evaluation.csv
+│   └── day16_ml_metrics.txt
 │
 ├── reports/
 │   └── detector_dashboard.html
@@ -429,7 +436,9 @@ CAN-Sentinel/
 │   └── test_dashboard_metadata.py
 │
 ├── docs/
-│   └── dashboard_status.md
+│   ├── dashboard_implementation_report.md
+│   ├── dashboard_spec.md
+│   └── dashboard_verification.md
 │
 ├── screenshots/
 │
@@ -453,7 +462,8 @@ CAN-Sentinel/
 | Experimental ML Prediction Display | Implemented |
 | Anomaly Score Statistics | Implemented |
 | Prediction/Reference Comparison | Implemented |
-| Dashboard Test Suite | 8 existing tests passed |
+| ML Model Configuration Comparison | Implemented |
+| Dashboard Test Suite | 8 tests passed |
 | Browser Verification | Performed |
 | Updated Model Integration | Not confirmed |
 | ML Mismatch Investigation | Pending |
@@ -491,4 +501,8 @@ The CAN-Sentinel dashboard provides a centralized interface for reviewing CAN tr
 
 The dashboard development includes PyQt5 interface support, HTML report generation, CSV integration, metadata display, detector performance reporting, and experimental ML prediction visualization.
 
-The available experimental ML results revealed prediction/reference mismatches that require further investigation. Updated
+The ML model configuration comparison was added to the dashboard using the evaluation results supplied by the Machine Learning team. The baseline configuration (0.05) showed the best overall balance among the three evaluated configurations.
+
+The dashboard was regenerated successfully, and all 8 existing dashboard and metadata tests passed. The generated HTML report was also checked in the browser.
+
+The available experimental ML results and evaluation data still require further investigation and validation with actual CAN traffic before making claims about real-world vehicle detection performance.
