@@ -35,6 +35,7 @@ def test_end_to_end_pipeline(tmp_path, monkeypatch):
 
     write_traffic(results_dir / "normal_traffic.csv", 0.1)
     write_traffic(results_dir / "high_rate_traffic.csv", 0.001)
+    write_traffic(results_dir / "day17_mixed_traffic.csv", 0.1)
 
     model_file = tmp_path / "can_model.joblib"
     model_file.touch()
@@ -44,27 +45,45 @@ def test_end_to_end_pipeline(tmp_path, monkeypatch):
     monkeypatch.setattr(integration, "MODEL_FILE", model_file)
     monkeypatch.setattr(integration, "OUTPUT_FILE", output_file)
     monkeypatch.setattr(
-        integration.joblib, "load", lambda _: FakeModel()
+        integration.joblib,
+        "load",
+        lambda _: FakeModel(),
     )
 
     integration.main()
-
     result = pd.read_csv(output_file)
 
-    assert set(result["source_file"]) == {"normal_traffic.csv", "high_rate_traffic.csv"}
+    assert set(result["source_file"]) == {
+        "normal_traffic.csv",
+        "high_rate_traffic.csv",
+        "day17_mixed_traffic.csv",
+    }
+
     assert {
-        "source_file", "prediction",
-        "ml_prediction", "rate_based_prediction", "anomaly_score"
+        "source_file",
+        "prediction",
+        "ml_prediction",
+        "rate_based_prediction",
+        "anomaly_score",
     }.issubset(result.columns)
 
     normal = result[result["source_file"] == "normal_traffic.csv"]
     high_rate = result[result["source_file"] == "high_rate_traffic.csv"]
+    mixed = result[result["source_file"] == "day17_mixed_traffic.csv"]
 
     assert len(normal) == 20
     assert len(high_rate) == 1
     assert normal.iloc[0]["prediction"] == "NORMAL"
     assert high_rate.iloc[0]["prediction"] == "HIGH_RATE_SUSPECTED"
 
+    # Synthetic mixed input: 100 frames at 0.1-second intervals.
+    # 0.5-second integration windows produce 20 output rows.
+    assert len(mixed) == 20
+    assert set(mixed["prediction"]).issubset({
+        "NORMAL",
+        "HIGH_RATE_SUSPECTED",
+        "REPLAY_SUSPECTED",
+    })
 
 def test_missing_traffic_input_reports_error(tmp_path, monkeypatch):
     results_dir = tmp_path / "results"
