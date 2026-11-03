@@ -1,7 +1,6 @@
 # CAN-Sentinel: Production ML Model Verification & Misclassification Analysis
 
-**Date:** November 2026  
-**Branch:** `ml-evaluation-500ms`  
+**Date:** November 2026    
 **Model Artifact:** `can_model.joblib` (Frozen — Unmodified Production Isolation Forest)  
 **Evaluation Protocol:** 500 ms Non-Overlapping Time Windows  
 **Evaluation Dataset:** `results/holdout_traffic.csv` (100 total windows)  
