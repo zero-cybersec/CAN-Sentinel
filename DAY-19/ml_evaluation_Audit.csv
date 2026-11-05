@@ -1,0 +1,7 @@
+scope,scenario,n,TP,FP,TN,FN,accuracy_pct,precision_pct,recall_pct,f1_pct,source
+overall,ALL,100,50,1,49,0,99.00,98.04,100.00,99.01,saved evaluation_results.csv; audit only; not fresh production inference
+scenario,Normal,25,0,1,24,0,96.00,0.00,0.00,0.00,saved evaluation_results.csv; benign scenario
+scenario,Burst,25,25,0,0,0,100.00,100.00,100.00,100.00,saved evaluation_results.csv; mapping to High-rate unconfirmed
+scenario,Replay,25,25,0,0,0,100.00,100.00,100.00,100.00,saved evaluation_results.csv; saved labels/predictions
+scenario,Recovery,25,0,0,25,0,100.00,0.00,0.00,0.00,saved evaluation_results.csv; not a verified Mixed scenario
+scenario,Mixed,0,0,0,0,0,NA,NA,NA,NA,no explicitly labeled Mixed data available
