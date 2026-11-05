@@ -1,0 +1,31 @@
+Audit date: 2026-11-05
+Status: Saved predictions audited; fresh production inference NOT independently verified.
+Positive class: ANOMALY
+
+Saved holdout: 100 records, 25 each for Normal, Burst, Replay, Recovery.
+CSV consistency: 100/100 evaluation rows match holdout window/scenario/labels/features.
+Outcome consistency: all saved TP/FP/FN/TN labels match saved predictions and ground truth.
+
+Confusion matrix (saved predictions only):
+                  Predicted ANOMALY   Predicted NORMAL
+Actual ANOMALY              50 (TP)             0 (FN)
+Actual NORMAL                1 (FP)            49 (TN)
+
+Accuracy:  99.00%
+Precision: 98.04%
+Recall:    100.00%
+F1-score:  99.01%
+
+Scenario outcomes in saved records:
+Normal:   25 records; 24 TN, 1 FP
+Burst:    25 records; 25 TP
+Replay:   25 records; 25 TP
+Recovery: 25 recoCAN-Sentinel ML Evaluation Audit
+rds; 25 TN
+
+Important limitations:
+- These figures are recalculated from existing saved prediction rows. They are not new predictions from a production artifact.
+- The current CAN Sentinel project artifact is a 500 ms JSON statistical-profile baseline with 8 ordered features.
+- Uploaded Isolation Forest scripts specify a different 4-feature schema. No can_model.joblib was available to verify.
+- The holdout labels Burst and Recovery; no explicit High-rate or Mixed labels are present. Mapping is unconfirmed.
+- No model parameters or thresholds were changed.
