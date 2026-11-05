@@ -1,0 +1,122 @@
+================================================================================
+CAN-SENTINEL: ML EVALUATION CONSISTENCY REPORT (500 MS PROTOCOL ALIGNMENT)
+================================================================================
+
+1. EXECUTIVE SUMMARY & VERIFICATION PURPOSE
+--------------------------------------------------------------------------------
+This evaluation aligns our Machine Learning detection methodology with the
+project-wide 500 ms window protocol, ensuring consistent validation across
+all team members on results/holdout_traffic.csv.
+
+Model Status:         Production can_model.joblib (FROZEN - NO RETRAINING)
+Window Duration:      500 ms (0.50 s, non-overlapping)
+Holdout Dataset:      results/holdout_traffic.csv (100 total windows)
+Model Configuration:  Isolation Forest (n_estimators=100, contamination=0.05, random_state=42)
+
+Five Evaluated Features:
+  1. message_count    (CAN frames per 500 ms window)
+  2. avg_interval_ms  (Mean inter-arrival time in milliseconds)
+  3. unique_can_ids   (Count of distinct arbitration IDs)
+  4. unique_payloads  (Count of distinct payload byte sequences)
+  5. payload_entropy  (Shannon entropy of payload bytes in bits)
+
+--------------------------------------------------------------------------------
+2. SCENARIO-BY-SCENARIO EVALUATION BREAKDOWN (500 MS WINDOWS)
+--------------------------------------------------------------------------------
+
+--- SCENARIO 1: NORMAL (25 Windows) ---
+  Ground Truth:          NORMAL (Clean Benign Traffic)
+  True Negatives (TN):   24
+  False Positives (FP):  1
+  False Alarm Rate (FPR):4.00%
+  Specificity:           96.00%
+  Accuracy:              96.00%
+
+--- SCENARIO 2: BURST (25 Windows) ---
+  Ground Truth:          ANOMALY (High-Rate DoS Flooding Attack)
+  True Positives (TP):   25
+  False Negatives (FN):  0
+  Detection Rate (Recall): 100.00%
+  Precision:             100.00%
+  F1-Score:              100.00%
+  Accuracy:              100.00%
+
+--- SCENARIO 3: REPLAY (25 Windows) ---
+  Ground Truth:          ANOMALY (Injected Sensor Replay Attack)
+  True Positives (TP):   25
+  False Negatives (FN):  0
+  Detection Rate (Recall): 100.00%
+  Precision:             100.00%
+  F1-Score:              100.00%
+  Accuracy:              100.00%
+
+--- SCENARIO 4: RECOVERY (25 Windows) ---
+  Ground Truth:          NORMAL (Post-Attack Transient Transition)
+  True Negatives (TN):   25
+  False Positives (FP):  0
+  False Alarm Rate (FPR):0.00%
+  Specificity:           100.00%
+  Accuracy:              100.00%
+
+--------------------------------------------------------------------------------
+3. CONSOLIDATED CONFUSION MATRIX & METRICS (500 MS PROTOCOL)
+--------------------------------------------------------------------------------
+
+Confusion Matrix (Positive = ANOMALY / Attack):
+                  Predicted ANOMALY   Predicted NORMAL
+Actual ANOMALY                   50                  0   (TP: 50, FN: 0)
+Actual NORMAL                     1                 49   (FP:  1, TN: 49)
+
+Consolidated Performance Summary (100 Windows Total):
+  Total Windows:           100
+  True Positives (TP):     50
+  True Negatives (TN):     49
+  False Positives (FP):    1
+  False Negatives (FN):    0
+  Overall Accuracy:        99.00%
+  Overall Precision:       98.04%
+  Overall Recall:          100.00%
+  Overall F1-Score:        99.01%
+  False Positive Rate:     2.00%
+
+--------------------------------------------------------------------------------
+4. METHODOLOGICAL COMPARISON: 250 MS VS. 500 MS WINDOW RESULTS
+--------------------------------------------------------------------------------
+
+| Metric / Parameter       | 250 ms Protocol | 500 ms Protocol | Delta / Impact |
+| :----------------------- | :-------------- | :-------------- | :------------- |
+| Evaluated Window Count   | 200 windows     | 100 windows     | 2x window duration |
+| True Positives (TP)      | 100             | 50              | 100% in both |
+| False Negatives (FN)     | 0               | 0               | Zero attack miss in both |
+| False Positives (FP)     | 11 (2 Norm+9 Rec)| 1 (1 Norm+0 Rec)| -10 false alarms (massive drop) |
+| True Negatives (TN)      | 89              | 49              | Higher specificity |
+| Attack Recall (Sens.)    | 100.00%         | 100.00%         | Unchanged (perfect) |
+| Precision                | 90.09%          | 98.04%          | +7.95% improvement |
+| Overall Accuracy         | 94.50%          | 99.00%          | +4.50% improvement |
+| Overall F1-Score         | 94.79%          | 99.01%          | +4.22% improvement |
+| False Positive Rate      | 11.00%          | 2.00%           | -9.00% reduction |
+
+Why do the results differ?
+1. Transient Smoothing During Recovery:
+   In 250 ms windows, post-burst controller buffer draining creates short-lived
+   inter-arrival jitter spanning ~150-250 ms. This caused 9 transient false positives
+   in the 250 ms evaluation. Under 500 ms windows, that short jitter is integrated
+   with nominal steady-state traffic, smoothing out the anomaly score and reducing
+   recovery false alarms to 0.
+
+2. Scale Shifts in Additive Features:
+   Additive features (message_count and unique_payloads) approximately double,
+   while rate features (avg_interval_ms) remain invariant. In 500 ms, the sample
+   variance of inter-arrival time decreases by ~30%, yielding tighter clusters
+   for normal baseline traffic and cleaner separation from attack vectors.
+
+3. Operational Trade-Off:
+   - 250 ms windows provide faster detection latency (250 ms response time),
+     but suffer from higher transient false alarm susceptibility.
+   - 500 ms windows provide superior noise resilience (99% F1-score, 2% FPR),
+     with a slight increase in detection latency to 500 ms, which is well within
+     standard automotive security response tolerances.
+
+================================================================================
+END OF REPORT
+================================================================================
