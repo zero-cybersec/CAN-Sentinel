@@ -77,6 +77,7 @@ def main():
     input_files = [
         RESULTS_DIR / "normal_traffic.csv",
         RESULTS_DIR / "high_rate_traffic.csv",
+        RESULTS_DIR / "day17_mixed_traffic.csv",
     ]
     missing = [str(path) for path in input_files if not path.exists()]
     if missing:
