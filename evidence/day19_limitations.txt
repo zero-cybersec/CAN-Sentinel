@@ -1,0 +1,8 @@
+CAN-Sentinel – Known Limitations
+
+1. Current evaluation uses available test datasets. Real-world vehicle performance is not established.
+2. Dashboard displays predictions from integration_results.csv; it does not independently execute detection models.
+3. Further validation using actual vehicle CAN traffic is required.
+4. Detection results depend on the available input traffic and trained model.
+
+No model parameters or detection thresholds were changed during final dashboard verification.
