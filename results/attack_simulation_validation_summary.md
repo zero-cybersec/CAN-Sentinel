@@ -130,3 +130,56 @@ validation. Production detector accuracy is not claimed.
 
 **Prepared by: Zeeshan**
 **Project: CAN-Sentinel**
+
+## 8. Day 19 Final Mixed-Traffic Review
+
+### Scenario-wise Validation
+
+| Scenario | Expected Label | Observed Dataset Label | Records | Mismatches |
+|---|---|---|---:|---:|
+| Normal | normal | normal | 500 | 0 |
+| High-Rate / Burst | attack | attack | 5000 | 0 |
+| Replay | attack | attack | 500 | 0 |
+| Recovery | normal | normal | 500 | 0 |
+
+### Traffic Validation Evidence
+
+- Total records: 6500
+- Timestamp ordering: PASS
+- Scenario label consistency: PASS
+- Total label mismatches: 0
+- All four scenario groups verified.
+- Existing datasets were preserved.
+- No traffic regeneration was performed.
+
+### Simulator Review
+
+- attack_simulator.py generates synthetic Normal and High-Rate traffic.
+- Its CSV output uses write mode and may overwrite existing files.
+- attack-simulation/simulate_can.py records setup observations.
+- Its logs/observations.csv also uses write mode.
+- The vcan0 test is explicitly marked as not yet run.
+- No confirmed critical simulator defect was established during this code review.
+- Existing simulator files were not modified.
+
+### Detection and Integration Limitations
+
+The observed labels above are dataset ground-truth labels, not production ML detector predictions.
+
+Production detector evaluation and final integration cross-validation are not independently confirmed by the available evidence.
+
+No thresholds or model parameters were changed.
+
+### Day 19 Conclusion
+
+All four traffic scenarios passed the inspected dataset-level
+structural, timestamp and label consistency checks.
+
+Existing simulation outputs were preserved. No unnecessary
+simulator redevelopment was performed.
+
+Production detector accuracy and final integration are not
+claimed without separate evaluation evidence.
+
+Prepared by: Zeeshan
+Branch: zeeshan
