@@ -183,3 +183,90 @@ claimed without separate evaluation evidence.
 
 Prepared by: Zeeshan
 Branch: zeeshan
+
+---
+
+## Day 20 — Integration, Detector and Holdout Validation
+
+### Validation Scope and Provenance
+
+The integration and detector validation was independently executed
+in an isolated temporary worktree based on
+origin/zero-cybersec at commit b4f13e5.
+
+The original zeeshan branch was not merged or modified during
+that validation. Only this report is being updated on zeeshan.
+
+### Automated Test Results
+
+- Full test suite: 23 passed.
+- Mixed-scenario tests: 8 passed.
+- One test fixture in the isolated worktree was adapted because
+  results/balanced_traffic_features.csv was unavailable.
+- The adapted test used existing Normal and High-Rate traffic
+  files and the integration feature extraction function.
+- These results therefore apply to the adapted test suite,
+  not an unchanged execution of the original test files.
+
+### Model and Integration Validation
+
+- The inspected model uses five features:
+  message_count, avg_interval_ms, unique_can_ids,
+  unique_payloads and payload_entropy.
+- A 40-window model check produced 20 NORMAL and 20 ANOMALY
+  predictions, with finite and non-constant anomaly scores.
+- The integration pipeline processed 120 windows:
+  - Normal traffic: 20 NORMAL predictions.
+  - High-Rate traffic: 20 HIGH_RATE_SUSPECTED predictions.
+  - Mixed traffic: 20 NORMAL, 20 HIGH_RATE_SUSPECTED,
+    20 REPLAY_SUSPECTED and 20 NORMAL recovery predictions.
+
+### Holdout Evaluation
+
+The holdout evaluation used 6,500 synthetic traffic records
+across Burst, Normal, Recovery and Replay scenarios.
+The evaluation generated 80 windows, 20 per scenario.
+
+Combined detector results across all 80 windows:
+
+| Detector | TP | FP | TN | FN | Accuracy |
+|---|---:|---:|---:|---:|---:|
+| ML | 20 | 0 | 40 | 20 | 75% |
+| Rate-based | 20 | 0 | 40 | 20 | 75% |
+| Sequence-based | 20 | 0 | 40 | 20 | 75% |
+| Hybrid | 40 | 0 | 40 | 0 | 100% |
+
+The Hybrid result achieved 100% accuracy on this particular
+synthetic holdout evaluation. This result must not be interpreted
+as a guarantee of real-world detection performance.
+
+### Observed Limitations
+
+- The Sequence-based detector missed the Burst windows.
+- ML and Rate-based detectors missed the Replay windows.
+- The Hybrid detector combined the evaluated detector outputs
+  using rate-based, sequence-based and ML priority logic.
+- The replay sequence check uses a specific periodic repetition
+  comparison and does not establish detection of every possible
+  replay attack.
+- All validation was performed on synthetic datasets.
+- No live vehicle or physical CAN-bus validation was performed.
+- No model parameters or detection thresholds were changed.
+- The integration model and code inspected on the teammate branch
+  have not been merged into zeeshan.
+- Integration and holdout output files were generated separately
+  in the temporary worktree to avoid overwriting existing results.
+
+### Day 20 Conclusion
+
+The isolated integration pipeline processed Normal, High-Rate,
+mixed and recovery traffic successfully. The synthetic holdout
+evaluation showed that the Hybrid detector correctly classified
+all 80 evaluated windows in this run.
+
+The individual detector limitations and synthetic-only scope
+are documented above. These results establish controlled
+offline validation, not production or real-vehicle validation.
+
+Prepared by: Zeeshan
+Branch: zeeshan
