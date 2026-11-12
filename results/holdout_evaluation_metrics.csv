@@ -1,0 +1,17 @@
+scenario,detector,evaluated_windows,TP,FP,TN,FN,precision,recall,f1_score,accuracy
+Burst,ML,20,20,0,0,0,1.0,1.0,1.0,1.0
+Burst,Rate-based,20,20,0,0,0,1.0,1.0,1.0,1.0
+Burst,Hybrid,20,20,0,0,0,1.0,1.0,1.0,1.0
+Burst,Sequence-based,20,0,0,0,20,0.0,0.0,0.0,0.0
+Normal,ML,20,0,0,20,0,0.0,0.0,0.0,1.0
+Normal,Rate-based,20,0,0,20,0,0.0,0.0,0.0,1.0
+Normal,Hybrid,20,0,0,20,0,0.0,0.0,0.0,1.0
+Normal,Sequence-based,20,0,0,20,0,0.0,0.0,0.0,1.0
+Recovery,ML,20,0,0,20,0,0.0,0.0,0.0,1.0
+Recovery,Rate-based,20,0,0,20,0,0.0,0.0,0.0,1.0
+Recovery,Hybrid,20,0,0,20,0,0.0,0.0,0.0,1.0
+Recovery,Sequence-based,20,0,0,20,0,0.0,0.0,0.0,1.0
+Replay,ML,20,0,0,0,20,0.0,0.0,0.0,0.0
+Replay,Rate-based,20,0,0,0,20,0.0,0.0,0.0,0.0
+Replay,Hybrid,20,20,0,0,0,1.0,1.0,1.0,1.0
+Replay,Sequence-based,20,20,0,0,0,1.0,1.0,1.0,1.0

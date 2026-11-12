@@ -1,0 +1,18 @@
+CAN-Sentinel - Day 4 Integration Test
+Date: 17/10/2026
+
+Components checked:
+1. CAN traffic CSV exists.
+2. Feature extraction output exists.
+3. Trained Isolation Forest model exists.
+4. Model testing output exists.
+
+Test results:
+Total feature records tested: 18
+NORMAL predictions: 17
+ANOMALY predictions: 1
+Unique CAN IDs: 3
+Missing values: 0
+
+Status: Existing pipeline outputs verified.
+Limitation: Results use existing feature data. Detection on separately labelled attack traffic is pending.
